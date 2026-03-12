@@ -14,12 +14,12 @@ const AlgorithmExposed = ({ spinCount, currentPhase }) => {
     phaseName = "Fase Hook (Dopamine Rush)";
     logicDescription = "Bandar memberikan kemenangan beruntun di awal (90-98%) untuk menciptakan ilusi bahwa game ini sangat mudah dimenangkan.";
     winChance = "95% (Global Win Rate)";
-    hiddenMechanic = "Menyesuaikan bobot simbol jackpot (777) agar lebih sering keluar sebagai pancingan deposit.";
+    hiddenMechanic = "Menyesuaikan bobot simbol jackpot (777) dan memberikan 'Free Spins' gratis sebagai pancingan deposit.";
   } else if (currentPhase === 'drain') {
     phaseName = "Fase Drain (Penyedotan)";
-    logicDescription = "Sistem menurunkan peluang menang secara drastis (15%). Kemenangan besar diganti dengan 'kemenangan palsu' atau simbol bernilai rendah.";
-    winChance = "15% (Global Win Rate)";
-    hiddenMechanic = "Memicu 'Near Miss' (2 simbol jackpot + 1 simbol sampah) untuk memicu adrenalin dan rasa penasaran.";
+    logicDescription = "Sistem menurunkan peluang menang sesuai Volatilitas pilihan. Kemenangan besar diganti dengan 'kemenangan palsu'.";
+    winChance = "8-25% (Tergantung Volatilitas)";
+    hiddenMechanic = "Memicu 'Near Miss' dan Bonus Round 'kosong' (banyak free spin tapi tidak ada jackpot) untuk memperlama waktu bermain.";
   } else if (currentPhase === 'crash') {
     phaseName = "Fase Crash (Bankruptcy)";
     logicDescription = "Sistem mengunci kemenangan. Algoritma 'Anti-Comeback' aktif untuk memastikan saldo pemain habis sepenuhnya.";

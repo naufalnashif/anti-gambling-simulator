@@ -25,6 +25,8 @@ function Simulator() {
   
   const [balance, setBalance] = useState(0);
   const [betAmount, setBetAmount] = useState(100000);
+  const [volatility, setVolatility] = useState('LOW'); // 'LOW', 'HIGH'
+  const [freeSpins, setFreeSpins] = useState(0);
   const [history, setHistory] = useState([]);
   const [spinCount, setSpinCount] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -67,14 +69,20 @@ function Simulator() {
   };
 
   const getPhase = () => {
-    if (balance < betAmount || gameOver) return 'crash';
+    if ((balance < betAmount && freeSpins === 0) || gameOver) return 'crash';
     if (spinCount <= 2) return 'hook';
     return 'drain';
   };
 
   const determineOutcome = (currentSpinCount) => {
     const isHookPhase = currentSpinCount <= 2;
-    const winChance = isHookPhase ? (currentSpinCount === 1 ? 0.98 : 0.90) : 0.15;
+    // Volatility adjustment: Low = frequent small wins, High = rare big wins
+    let winChance;
+    if (isHookPhase) {
+      winChance = currentSpinCount === 1 ? 0.98 : 0.90;
+    } else {
+      winChance = volatility === 'LOW' ? 0.25 : 0.08;
+    }
     
     const rand = Math.random();
     
@@ -82,38 +90,38 @@ function Simulator() {
       // WIN LOGIC
       const winRand = Math.random();
       let symbol;
-      let multiplier;
-
+      
       if (isHookPhase) {
-        if (winRand < 0.75) {
-          symbol = '🍒'; // Low
-        } else if (winRand < 0.90) {
-          symbol = '🍋'; // Mid 1
-        } else if (winRand < 0.97) {
-          symbol = '🔔'; // Mid 2
-        } else if (winRand < 0.99) {
-          symbol = '💎'; // Premium
-        } else {
-          symbol = '7️⃣'; // Jackpot
-        }
+        if (winRand < 0.75) symbol = '🍒';
+        else if (winRand < 0.90) symbol = '🍋';
+        else if (winRand < 0.97) symbol = '🔔';
+        else if (winRand < 0.99) symbol = '💎';
+        else symbol = '7️⃣';
       } else {
-        if (winRand < 0.90) {
-          symbol = '🍒'; // Low
-        } else if (winRand < 0.98) {
-          symbol = '🍋'; // Mid 1
-        } else if (winRand < 0.995) {
-          symbol = '🔔'; // Mid 2
-        } else if (winRand < 0.999) {
-          symbol = '💎'; // Premium
+        // Volatility based symbol weight
+        if (volatility === 'LOW') {
+          if (winRand < 0.85) symbol = '🍒'; // mostly low
+          else if (winRand < 0.98) symbol = '🍋';
+          else symbol = '🔔';
         } else {
-          symbol = '7️⃣'; // Jackpot
+          if (winRand < 0.40) symbol = '🍒';
+          else if (winRand < 0.70) symbol = '🍋';
+          else if (winRand < 0.90) symbol = '🔔';
+          else if (winRand < 0.97) symbol = '💎';
+          else symbol = '7️⃣';
         }
       }
       
-      multiplier = PAYTABLE[symbol];
+      const multiplier = PAYTABLE[symbol];
       const payout = betAmount * multiplier;
+
+      // Random Free Spin Trigger (Psychological Design)
+      let winFreeSpins = 0;
+      if (Math.random() < 0.15) { // 15% chance to trigger free spins on any win
+        winFreeSpins = Math.floor(Math.random() * 3) + 3; // 3-5 free spins
+      }
       
-      return { isWin: true, payout, symbols: [symbol, symbol, symbol] };
+      return { isWin: true, payout, symbols: [symbol, symbol, symbol], winFreeSpins };
     } else {
       // LOSS LOGIC
       const isNearMiss = !isHookPhase && Math.random() < 0.65;
@@ -145,11 +153,20 @@ function Simulator() {
   };
 
   const spin = () => {
-    if (balance < betAmount || isSpinning || gameOver) return;
+    if ((balance < betAmount && freeSpins === 0) || isSpinning || gameOver) return;
 
     setIsSpinning(true);
     setWinStatus(null);
-    let currentBalance = balance - betAmount;
+    
+    const isFreeSpin = freeSpins > 0;
+    let currentBalance = balance;
+    
+    if (isFreeSpin) {
+      setFreeSpins(prev => prev - 1);
+    } else {
+      currentBalance -= betAmount;
+    }
+    
     const newSpinCount = spinCount + 1;
     
     setTimeout(() => {
@@ -159,6 +176,11 @@ function Simulator() {
       if (outcome.isWin && outcome.payout > 0) {
         setWinStatus('win');
         currentBalance += outcome.payout;
+        
+        if (outcome.winFreeSpins > 0) {
+          setFreeSpins(prev => prev + outcome.winFreeSpins);
+          triggerBandarToast('hook', `BONUS FREE SPINS! +${outcome.winFreeSpins} Putaran Gratis. Bandar memberikan 'gratisan' agar Anda merasa beruntung walau algoritma tetap menyedot saldo.`);
+        }
       } else {
         setWinStatus('lose');
       }
@@ -169,7 +191,7 @@ function Simulator() {
       setIsSpinning(false);
 
       // Determine if a Reality Check modal will be shown
-      const willShowRealityCheck = currentBalance < betAmount || newSpinCount % 3 === 0;
+      const willShowRealityCheck = (currentBalance < betAmount && (freeSpins === 0 && !outcome.winFreeSpins)) || newSpinCount % 3 === 0;
 
       // Trigger Scenario Notifications
       if (!willShowRealityCheck) {
@@ -183,7 +205,8 @@ function Simulator() {
         }
       }
 
-      if (currentBalance < betAmount) {
+      if (currentBalance < betAmount && freeSpins === 0 && !outcome.winFreeSpins) {
+
 
         setGameOver(true);
         setShowRealityCheck(true);
@@ -306,12 +329,12 @@ function Simulator() {
 
             <div style={{ margin: '20px 0' }}>
               <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '10px', fontWeight: 'bold' }}>PILIH TARUHAN (BET)</p>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '15px' }}>
                 {BET_OPTIONS.map(opt => (
                   <button
                     key={opt}
                     onClick={() => setBetAmount(opt)}
-                    disabled={isSpinning || balance < opt}
+                    disabled={isSpinning || balance < opt || freeSpins > 0}
                     className={`bet-btn ${betAmount === opt ? 'active' : ''}`}
                     style={{
                       padding: '8px 12px',
@@ -322,18 +345,59 @@ function Simulator() {
                       color: betAmount === opt ? '#000' : '#fff',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
-                      opacity: balance < opt ? 0.3 : 1
+                      opacity: (balance < opt || (freeSpins > 0 && betAmount !== opt)) ? 0.3 : 1
                     }}
                   >
                     {opt >= 1000000 ? `${opt/1000000}JT` : `${opt/1000}K`}
                   </button>
                 ))}
               </div>
+
+              <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '10px', fontWeight: 'bold' }}>VOLATILITAS (POLA BAYARAN)</p>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <button
+                  onClick={() => setVolatility('LOW')}
+                  disabled={isSpinning || freeSpins > 0}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    background: volatility === 'LOW' ? 'rgba(0, 242, 255, 0.2)' : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${volatility === 'LOW' ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)'}`,
+                    color: '#fff',
+                    cursor: 'pointer'
+                  }}
+                >
+                  LOW (Sering Menang, Kecil)
+                </button>
+                <button
+                  onClick={() => setVolatility('HIGH')}
+                  disabled={isSpinning || freeSpins > 0}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    background: volatility === 'HIGH' ? 'rgba(255, 60, 100, 0.2)' : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${volatility === 'HIGH' ? 'var(--lose-color)' : 'rgba(255,255,255,0.1)'}`,
+                    color: '#fff',
+                    cursor: 'pointer'
+                  }}
+                >
+                  HIGH (Jarang Menang, Besar)
+                </button>
+              </div>
             </div>
 
-            <div style={{ height: '30px', margin: '5px 0' }}>
-              {winStatus === 'win' && <p className="text-win" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>+ WIN!</p>}
-              {winStatus === 'lose' && <p className="text-lose" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>LOSER</p>}
+            <div style={{ height: '40px', margin: '5px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              {freeSpins > 0 && (
+                <div className="pulsate-win" style={{ color: 'var(--accent-color)', fontWeight: 'bold', fontSize: '1rem' }}>
+                  FREE SPINS: {freeSpins}
+                </div>
+              )}
+              {winStatus === 'win' && <p className="text-win" style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>+ WIN!</p>}
+              {winStatus === 'lose' && <p className="text-lose" style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>LOSER</p>}
             </div>
 
             <SlotMachine reels={reels} isSpinning={isSpinning} />
@@ -341,10 +405,15 @@ function Simulator() {
             <button 
               className="btn-primary" 
               onClick={spin} 
-              disabled={isSpinning || balance < betAmount || gameOver}
-              style={{ width: '100%', maxWidth: '300px', margin: '20px auto 0' }}
+              disabled={isSpinning || (balance < betAmount && freeSpins === 0) || gameOver}
+              style={{ width: '100%', maxWidth: '300px', margin: '20px auto 0', position: 'relative', overflow: 'hidden' }}
             >
-              {isSpinning ? 'SPINNING...' : `SPIN (${formatCurrency(betAmount)})`}
+              {freeSpins > 0 ? (
+                <span>FREE SPIN ACTIVE ({freeSpins})</span>
+              ) : (
+                <span>{isSpinning ? 'SPINNING...' : `SPIN (${formatCurrency(betAmount)})`}</span>
+              )}
+              {freeSpins > 0 && <div className="bonus-shimmer"></div>}
             </button>
           </div>
 
