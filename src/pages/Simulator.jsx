@@ -19,7 +19,7 @@ const PAYTABLE = {
   '7️⃣': 50
 };
 
-function Simulator() {
+function Simulator({ onGameStart }) {
   const [gameState, setGameState] = useState('setup'); // 'setup', 'playing'
   const [initialBalanceInput, setInitialBalanceInput] = useState(1000000);
   const [initialBalanceState, setInitialBalanceState] = useState(1000000);
@@ -68,6 +68,7 @@ function Simulator() {
     setBalance(initialBalanceInput);
     setHistory([{ spin: 0, balance: initialBalanceInput }]);
     setGameState('playing');
+    if (onGameStart) onGameStart();
 
     // Scenario: High-Value Target
     if (initialBalanceInput >= 5000000) {
@@ -290,7 +291,7 @@ function Simulator() {
   if (gameState === 'setup') {
     return (
       <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-        <div id="setup-panel" className="glass-panel setup-panel" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+        <div className="glass-panel setup-panel" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
           <div className="header" style={{ marginBottom: '30px' }}>
             <h1><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
             <p style={{ fontSize: '0.95rem', opacity: 0.8 }}>Persiapkan mental Anda. Tentukan modal awal permainan.</p>
@@ -301,6 +302,7 @@ function Simulator() {
               <label style={{ color: '#ccc', fontWeight: 'bold' }}>Modal Awal (Rupiah)</label>
               <input
                 type="number"
+                id="tutor-setup-input"
                 className="setup-input"
                 value={initialBalanceInput}
                 onChange={(e) => setInitialBalanceInput(Number(e.target.value))}
@@ -308,7 +310,7 @@ function Simulator() {
                 step={100000}
               />
             </div>
-            <button id="start-game-btn" type="submit" className="btn-primary" style={{ width: '100%' }}>
+            <button id="tutor-setup-start" type="submit" className="btn-primary" style={{ width: '100%' }}>
               MULAI BERMAIN
             </button>
           </form>
@@ -366,7 +368,6 @@ function Simulator() {
           </button>
 
           <button
-            id="become-bandar-btn"
             onClick={() => setIsBandarMode(!isBandarMode)}
             className="glass-panel"
             style={{
@@ -391,7 +392,6 @@ function Simulator() {
           </button>
 
           <button
-            id="reset-btn"
             onClick={handleRestart}
             className="glass-panel"
             style={{
@@ -431,13 +431,13 @@ function Simulator() {
               </span>
             </div>
 
-            <div id="balance-container" className={`balance-display ${winStatus === 'win' ? 'text-win pulsate-win' : winStatus === 'lose' ? 'text-lose pulsate-lose' : ''}`}>
+            <div id="tutor-game-balance" className={`balance-display ${winStatus === 'win' ? 'text-win pulsate-win' : winStatus === 'lose' ? 'text-lose pulsate-lose' : ''}`}>
               {formatCurrency(balance)}
             </div>
 
             <div style={{ margin: '20px 0' }}>
               <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '10px', fontWeight: 'bold' }}>PILIH TARUHAN (BET)</p>
-              <div id="bet-selection" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {BET_OPTIONS.map(opt => (
                   <button
                     key={opt}
@@ -475,12 +475,10 @@ function Simulator() {
               )}
             </div>
 
-            <div id="slot-machine-container">
-              <SlotMachine reels={reels} isSpinning={isSpinning} />
-            </div>
+            <SlotMachine reels={reels} isSpinning={isSpinning} />
 
             <button
-              id="spin-btn"
+              id="tutor-game-spin"
               className="btn-primary"
               onClick={spin}
               disabled={isSpinning || balance < betAmount || gameOver}
@@ -491,7 +489,7 @@ function Simulator() {
           </div>
 
           {/* Paytable Section */}
-          <div id="paytable-container" className="glass-panel" style={{ padding: '20px' }}>
+          <div className="glass-panel" style={{ padding: '20px' }}>
             <h3 className="outfit text-secondary" style={{ fontSize: '1rem', marginBottom: '15px', textAlign: 'center' }}>PAYTABLE (KALI TARUHAN)</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
               {Object.entries(PAYTABLE).map(([sym, mult]) => (
@@ -503,7 +501,7 @@ function Simulator() {
             </div>
           </div>
 
-          <div id="stats-container" className="glass-panel" style={{ padding: '30px', display: 'flex', gap: '20px', justifyContent: 'space-around', flexWrap: 'wrap' }}>
+          <div className="glass-panel" style={{ padding: '30px', display: 'flex', gap: '20px', justifyContent: 'space-around', flexWrap: 'wrap' }}>
             <div className="stat-card" style={{ flex: 1, minWidth: '150px' }}>
               <div className="tooltip-container" style={{ marginBottom: '10px' }}>
                 <h3 className="text-secondary">Total Spins</h3>
@@ -533,7 +531,7 @@ function Simulator() {
 
         </div>
 
-        <div id="balance-history-container" className="sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="glass-panel" style={{ padding: '30px', height: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '30px' }}>
               <TrendingDown className="text-lose" size={28} />

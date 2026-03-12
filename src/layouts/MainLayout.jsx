@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Gamepad2, BrainCircuit, BookOpen, Menu, X, Play } from 'lucide-react';
 import '../index.css';
 
-const MainLayout = ({ activeTab, setActiveTab, children }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const MainLayout = ({ activeTab, setActiveTab, mobileMenuOpen, setMobileMenuOpen, children }) => {
 
   const navItems = [
     { id: 'home', label: 'Home', icon: <Play size={20} /> },
@@ -24,7 +23,7 @@ const MainLayout = ({ activeTab, setActiveTab, children }) => {
         <h2 className="outfit" style={{ margin: 0, fontSize: '1.2rem' }}>
           <span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span>
         </h2>
-        <button id="mobile-burger" className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+        <button id="tutor-burger" className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -42,7 +41,7 @@ const MainLayout = ({ activeTab, setActiveTab, children }) => {
           {navItems.map((item) => (
             <div 
               key={item.id}
-              id={`nav-${item.id}`}
+              id={`tutor-nav-${item.id}`}
               className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
               onClick={() => handleNavClick(item.id)}
             >

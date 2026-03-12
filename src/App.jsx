@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Simulator from './pages/Simulator';
@@ -9,164 +9,102 @@ import './index.css';
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [isTutorialActive, setIsTutorialActive] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
 
-  // Auto-start tutorial on first visit
-  React.useEffect(() => {
-    const hasSeenTutorial = localStorage.getItem('hasSeenZeusTutorialV3');
-    if (!hasSeenTutorial) {
-      setTimeout(() => setIsTutorialActive(true), 2000);
+  useEffect(() => {
+    const isTutorialDone = localStorage.getItem('tutorial_done');
+    if (!isTutorialDone) {
+      setShowTutorial(true);
     }
   }, []);
 
   const tutorialSteps = [
-    // PHASE 1: HOME & SIDEBAR
     {
-      title: "Selamat Datang di Zeus Casino",
-      message: "Mari belajar bagaimana sistem judi online sebenarnya bekerja. Kami akan membimbing Anda langkah demi langkah dalam simulasi edukasi ini.",
-      targetId: null,
-      action: () => setTutorialStep(1)
+      title: 'Selamat Datang!',
+      content: 'Selamat datang di Zeus Casino. Mari kita jelajahi platform edukasi anti-judi online ini agar Anda memahami risikonya.',
+      targetId: 'tutor-nav-home',
+    },
+    // Conditionally added burger step for mobile
+    ...(window.innerWidth <= 768 ? [{
+      title: 'Buka Menu',
+      content: 'Klik burger menu untuk melihat navigasi website kami.',
+      targetId: 'tutor-burger',
+    }] : []),
+    {
+      title: 'Menu Navigasi',
+      content: 'Di sini Anda dapat berpindah antara Beranda, Simulasi, Strategi, dan Artikel Edukasi.',
+      targetId: 'tutor-nav-home',
     },
     {
-      title: "Navigasi Konten",
-      message: window.innerWidth <= 768 
-        ? "Klik icon menu (burger) untuk membuka navigasi utama." 
-        : "Anda dapat berpindah antar halaman melalui sidebar ini.",
-      targetId: window.innerWidth <= 768 ? 'mobile-burger' : 'nav-home',
-      action: () => setTutorialStep(2)
+      title: 'Simulasi Game',
+      content: 'Fitur utama kami untuk mendemonstrasikan bagaimana uang Anda habis oleh algoritma.',
+      targetId: 'tutor-nav-simulator',
     },
     {
-      title: "Menu Simulasi",
-      message: "Dari sini Anda bisa mengakses simulasi game, strategi bandar, dan artikel edukasi penting.",
-      targetId: 'nav-simulator',
-      action: () => setTutorialStep(3)
+      title: 'Strategi Bandar',
+      content: 'Pelajari taktik kotor yang digunakan bandar untuk memancing emosi pemain.',
+      targetId: 'tutor-nav-strategy',
     },
     {
-      title: "Siap Untuk Mencoba?",
-      message: "Klik tombol 'MULAI SIMULASI' untuk masuk ke dalam pusat kendali algoritma.",
-      targetId: 'home-start-btn',
-      action: () => {
-        setActiveTab('simulator');
-        setTimeout(() => setTutorialStep(4), 1000); // Wait for page to render
-      }
-    },
-    // PHASE 2: SIMULATOR SETUP
-    {
-      title: "Inisialisasi Modal",
-      message: "Tunggu sebentar... Kita masuk ke tahap persiapan. Perhatikan saldo awal Anda.",
-      targetId: 'setup-panel',
-      action: () => setTutorialStep(5),
-      shouldScroll: true
+      title: 'Artikel Edukasi',
+      content: 'Informasi mendalam tentang dampak buruk dan cara berhenti dari judi online.',
+      targetId: 'tutor-nav-education',
     },
     {
-      title: "Saldo Virtual Anda",
-      message: "Masukkan nominal modal yang ingin Anda simulasikan. Ingat, ini adalah saldo virtual untuk tujuan edukasi.",
-      targetId: 'setup-panel',
-      action: () => setTutorialStep(6)
+      title: 'Mulai Simulasi',
+      content: 'Klik tombol ini untuk langsung masuk ke halaman simulasi mesin slot.',
+      targetId: 'tutor-start-sim',
+    },
+    // The following steps appear only when entering simulator
+    {
+      title: 'Persiapkan Modal',
+      content: 'Masukkan jumlah modal awal yang ingin Anda simulasikan (uang virtual).',
+      targetId: 'tutor-setup-input',
     },
     {
-      title: "Konfirmasi Bermain",
-      message: "Klik 'MULAI BERMAIN' untuk mengaktifkan mesin slot. Setelah ini, kita akan menunggu sistem menyiapkan ribuan algoritma jebakan untuk Anda.",
-      targetId: 'start-game-btn',
-      action: () => {
-        // The user manually clicks or it happens via submit
-        // We wait for the game to start and the UI to settle
-        setTimeout(() => setTutorialStep(7), 2000); 
-      }
+      title: 'Konfirmasi Bermain',
+      content: 'Jika sudah siap, klik Mulai Bermain untuk masuk ke dalam permainan.',
+      targetId: 'tutor-setup-start',
     },
-    // PHASE 3: GAMEPLAY
+    // The final steps appear after game starts
     {
-      title: "Sistem Siap!",
-      message: "Selamat datang di meja judi. Perhatikan sekeliling Anda sebelum mulai memutar keberuntungan.",
-      targetId: 'balance-container',
-      action: () => setTutorialStep(8),
-      shouldScroll: true
+      title: 'Pantau Saldo',
+      content: 'Perhatikan saldo Anda. Biasanya akan naik sedikit di awal sebelum akhirnya dikuras habis.',
+      targetId: 'tutor-game-balance',
     },
     {
-      title: "Monitor Saldo",
-      message: "Ini adalah saldo Anda. Perhatikan bagaimana ia akan 'menari' naik turun, namun secara matematis akan terus tergerus.",
-      targetId: 'balance-container',
-      action: () => setTutorialStep(9)
-    },
-    {
-      title: "Pilih Taruhan (Bet)",
-      message: "Pilihlah besaran taruhan yang Anda inginkan (misal 100K). Besaran bet yang tinggi akan mempercepat fase kebangkrutan.",
-      targetId: 'bet-selection',
-      action: () => setTutorialStep(10)
-    },
-    {
-      title: "Mesin Slot",
-      message: "Visual ini hanyalah kosmetik. Semua hasil putaran sudah ditentukan oleh RNG (Random Number Generator) yang dimanipulasi bandar.",
-      targetId: 'slot-machine-container',
-      action: () => setTutorialStep(11)
-    },
-    {
-      title: "Putar Mesin (Spin)",
-      message: "Klik SPIN untuk memulai. Ingat, setiap klik adalah langkah menuju kerugian nyata jika ini terjadi di dunia asli.",
-      targetId: 'spin-btn',
-      action: () => setTutorialStep(12)
-    },
-    {
-      title: "Statistik & Riwayat",
-      message: "Pantau statistik kekalahan Anda di sini. Riwayat saldo akan menunjukkan grafik penurunan yang tajam.",
-      targetId: 'stats-container',
-      action: () => setTutorialStep(13)
-    },
-    {
-      title: "Menjadi Bandar",
-      message: "Jika Anda ingin tahu rahasia di balik kemenangan bandar, silakan buka panel kendali ini.",
-      targetId: 'become-bandar-btn',
-      action: () => setTutorialStep(14)
-    },
-    // PHASE 4: STRATEGY & EDUCATION
-    {
-      title: "Pahami Strategi Mereka",
-      message: "Sekarang mari kita pindah ke halaman Strategi Bandar untuk membongkar trik yang mereka gunakan.",
-      targetId: 'nav-strategy',
-      action: () => {
-        setActiveTab('strategy');
-        setTimeout(() => setTutorialStep(15), 1000);
-      }
-    },
-    {
-      title: "Kamus Taktik Bandar",
-      message: "Di sini Anda bisa membaca detail tentang Hook Phase, Near Miss, dan teknik manipulasi lainnya.",
-      targetId: 'strategy-header',
-      action: () => setTutorialStep(16),
-      shouldScroll: true
-    },
-    {
-      title: "Daftar Strategi",
-      message: "Klik pada setiap item untuk memperdalam pemahaman Anda tentang bagaimana Anda dijebak secara matematis.",
-      targetId: 'strategy-list',
-      action: () => {
-        setActiveTab('education');
-        setTimeout(() => setTutorialStep(17), 1000);
-      }
-    },
-    {
-      title: "Edukasi & Dampak Nyata",
-      message: "Terakhir, halaman Edukasi akan memberikan gambaran dampak sosial dan hukum dari perjudian online.",
-      targetId: 'education-header',
-      action: () => setTutorialStep(18),
-      shouldScroll: true
-    },
-    {
-      title: "Artikel Penting",
-      message: "Baca artikel-artikel ini untuk memahami bahwa judi online bukan sekadar permainan, tapi ancaman nyata bagi masa depan.",
-      targetId: 'education-list',
-      action: () => {
-        setIsTutorialActive(false);
-        localStorage.setItem('hasSeenZeusTutorialV3', 'true');
-        setActiveTab('home'); // Send back home after completion
-      }
+      title: 'Putar Mesin',
+      content: 'Klik Spin untuk memulai permainan. Rasakan bagaimana algoritma mulai bekerja.',
+      targetId: 'tutor-game-spin',
     }
   ];
 
-  const handleFinishTutorial = () => {
-    setIsTutorialActive(false);
-    localStorage.setItem('hasSeenZeusTutorialV3', 'true');
+  const handleTutorialStepChange = (index) => {
+    setTutorialStep(index);
+    const step = tutorialSteps[index];
+
+    // Mobile specific: Open/Close menu based on step
+    if (window.innerWidth <= 768) {
+      if (step.targetId.startsWith('tutor-nav')) {
+        setMobileMenuOpen(true);
+      } else {
+        setMobileMenuOpen(false);
+      }
+    }
+
+    // Auto-navigate to correct page
+    if (step.targetId === 'tutor-start-sim' || step.targetId === 'tutor-nav-home') {
+      setActiveTab('home');
+    } else if (step.targetId.startsWith('tutor-setup') || step.targetId.startsWith('tutor-game')) {
+      setActiveTab('simulator');
+    }
+  };
+
+  const handleTutorialComplete = () => {
+    localStorage.setItem('tutorial_done', 'true');
+    setShowTutorial(false);
   };
 
   const renderContent = () => {
@@ -174,7 +112,10 @@ function App() {
       case 'home':
         return <Home onStart={() => setActiveTab('simulator')} />;
       case 'simulator':
-        return <Simulator />;
+        return <Simulator onGameStart={() => {
+            // If in tutorial and started the game, we might want to skip to the game steps
+            // This is handled by current step progression usually
+        }} />;
       case 'strategy':
         return <Strategy />;
       case 'education':
@@ -185,18 +126,24 @@ function App() {
   };
 
   return (
-    <div className="app-root">
-      <MainLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+    <>
+      <MainLayout 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+      >
         {renderContent()}
       </MainLayout>
 
-      <TutorialOverlay 
-        active={isTutorialActive}
-        steps={tutorialSteps}
-        currentStepIndex={tutorialStep}
-        onFinish={handleFinishTutorial}
-      />
-    </div>
+      {showTutorial && (
+        <TutorialOverlay 
+          steps={tutorialSteps} 
+          onComplete={handleTutorialComplete}
+          onStepChange={handleTutorialStepChange}
+        />
+      )}
+    </>
   );
 }
 

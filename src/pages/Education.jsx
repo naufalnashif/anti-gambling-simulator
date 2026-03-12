@@ -68,7 +68,7 @@ const Education = () => {
 
   return (
     <div className="page-container" style={{ paddingBottom: '30px' }}>
-      <div id="education-header" className="header" style={{ marginBottom: '2.5rem' }}>
+      <div className="header" style={{ marginBottom: '2.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginBottom: '10px' }}>
           <BookOpen className="text-secondary" size={32} />
           <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', margin: 0 }}>Artikel <span className="text-secondary">Edukasi</span></h1>
@@ -78,7 +78,7 @@ const Education = () => {
         </p>
       </div>
 
-      <div id="education-list" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         {articles.map((article, index) => (
           <ArticleItem key={index} {...article} />
         ))}

@@ -72,7 +72,7 @@ const Strategy = () => {
 
   return (
     <div className="page-container" style={{ paddingBottom: '30px' }}>
-      <div id="strategy-header" className="header" style={{ marginBottom: '2.5rem' }}>
+      <div className="header" style={{ marginBottom: '2.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginBottom: '10px' }}>
           <BrainCircuit className="text-accent" size={32} />
           <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', margin: 0 }}>Strategi <span className="text-accent">Bandar</span></h1>
@@ -82,7 +82,7 @@ const Strategy = () => {
         </p>
       </div>
 
-      <div id="strategy-list" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         {strategies.map((strat, index) => (
           <StrategyItem key={index} {...strat} />
         ))}
