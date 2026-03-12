@@ -2,20 +2,31 @@ import React from 'react';
 import { AlertCircle, XCircle } from 'lucide-react';
 import '../index.css';
 
-const FACTS = [
+export const FACTS = [
   "Judi online hanya memberikan kemenangan semu (dopamin) di awal, di mana setelah itu hanya terdapat kekalahan yang telah direncanakan oleh sistem.",
   "Hasil 'Near Win' (dua gambar sama) adalah ilusi visual yang sengaja diciptakan agar Anda merasa 'sedikit lagi menang' dan terus memutar mesin.",
   "Bandar tidak pernah rugi. Setiap kemenangan kecil yang Anda rasakan hanyalah bagian dari rotasi saldo pemain lain untuk menjaga Anda tetap bermain.",
   "Algoritma judi online dirancang untuk mengeksploitasi psikologi manusia. Dorongan untuk kembali bermain adalah hasil manipulasi, bukan logika.",
-  "RTP dalam judi online dapat diubah sewaktu-waktu oleh operator. Tidak ada keadilan dalam sistem yang dikendalikan penuh oleh pemilik situs."
+  "RTP dalam judi online dapat diubah sewaktu-waktu oleh operator. Tidak ada keadilan dalam sistem yang dikendalikan penuh oleh pemilik situs.",
+  "Fitur 'Auto-spin' mempercepat penguapan saldo Anda. Semakin cepat Anda bermain, semakin cepat algoritma penyedotan saldo bekerja.",
+  "Setiap detik di situs judi, data perilaku Anda dipelajari oleh AI untuk menentukan kapan harus memberikan 'kemenangan pancingan'.",
+  "Uang yang Anda kalahkan adalah keuntungan pasti bagi pengembang platform, sementara harapan Anda akan keberuntungan adalah variabel yang mereka kendalikan.",
+  "Skema deposit yang mudah dan withdraw yang sulit adalah taktik psikologis agar Anda terus memutar saldo yang sudah dimenangkan.",
+  "Kemenangan besar seorang pemain seringkali dipromosikan (endorse) untuk menciptakan ilusi bahwa kemenangan adalah hal yang umum, padahal itu pengecualian.",
+  "Admin situs memiliki kontrol penuh untuk memblokir akun yang menang terlalu banyak, memastikan 'House Always Wins' bukan sekadar mitos.",
+  "Ilusi kontrol: Anda merasa bisa membaca pola (pola gacor), padahal setiap putaran adalah hasil acak yang sudah dikalibrasi untuk kerugian jangka panjang.",
+  "Suara dan cahaya yang meriah saat menang adalah teknik Pavlovian untuk melatih otak Anda mengharapkan hadiah dari aktivitas yang merusak.",
+  "Banyak situs judi menggunakan bot untuk menciptakan suasana ramai dan memicu rasa kompetitif atau takut ketinggalan (FOMO) pada pemain asli.",
+  "Kerugian finansial hanyalah awal; adiksi judi online merusak struktur saraf otak yang mengatur pengambilan keputusan dan kontrol emosi."
 ];
 
-const RealityCheck = ({ onClose, gameOver, spinCount, lossAmount }) => {
+const RealityCheck = ({ onClose, gameOver, spinCount, lossAmount, fact }) => {
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
   };
 
-  const randomFact = FACTS[Math.floor(Math.random() * FACTS.length)];
+  // Use passed fact or fall back to a random one if not provided (for safety)
+  const displayFact = fact || FACTS[Math.floor(Math.random() * FACTS.length)];
 
   return (
     <div className="modal-overlay">
@@ -56,7 +67,7 @@ const RealityCheck = ({ onClose, gameOver, spinCount, lossAmount }) => {
             <h2 className="outfit text-accent" style={{ fontSize: '1.5rem', marginBottom: '15px' }}>Paham Risikonya?</h2>
             
             <p className="fact-text" style={{ fontSize: '0.95rem', background: 'rgba(0, 229, 255, 0.05)', padding: '15px', borderRadius: '12px', borderLeftColor: 'var(--accent-secondary)' }}>
-              {randomFact}
+              {displayFact}
             </p>
 
             <div style={{ margin: '20px 0', fontSize: '0.85rem', color: '#888' }}>

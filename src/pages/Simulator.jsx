@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SlotMachine from '../components/SlotMachine';
 import BalanceChart from '../components/BalanceChart';
-import RealityCheck from '../components/RealityCheck';
+import RealityCheck, { FACTS } from '../components/RealityCheck';
 import AlgorithmExposed from '../components/AlgorithmExposed';
 import { AlertTriangle, TrendingDown, Info } from 'lucide-react';
 import '../index.css';
@@ -21,6 +21,8 @@ function Simulator() {
   const [showRealityCheck, setShowRealityCheck] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [winStatus, setWinStatus] = useState(null);
+  const [shownFactIndices, setShownFactIndices] = useState([]);
+  const [currentFact, setCurrentFact] = useState('');
 
   const items = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
 
@@ -93,7 +95,19 @@ function Simulator() {
       if (currentBalance < BET_AMOUNT) {
         setGameOver(true);
         setShowRealityCheck(true);
-      } else if (newSpinCount % 5 === 0) {
+      } else if (newSpinCount % 3 === 0) {
+        // Handle non-repeating fact selection
+        let availableIndices = FACTS.map((_, i) => i).filter(i => !shownFactIndices.includes(i));
+        
+        // If all facts have been shown, reset the pool
+        if (availableIndices.length === 0) {
+          availableIndices = FACTS.map((_, i) => i);
+          setShownFactIndices([]);
+        }
+
+        const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        setCurrentFact(FACTS[randomIndex]);
+        setShownFactIndices(prev => [...prev, randomIndex]);
         setShowRealityCheck(true);
       }
     }, 1500);
@@ -111,6 +125,8 @@ function Simulator() {
       setWinStatus(null);
       setHistory([]);
       setBalance(0);
+      setShownFactIndices([]);
+      setCurrentFact('');
     }
   };
 
@@ -263,6 +279,7 @@ function Simulator() {
           gameOver={gameOver}
           spinCount={spinCount}
           lossAmount={initialBalanceState - balance}
+          fact={currentFact}
         />
       )}
     </div>
