@@ -84,12 +84,30 @@ function Simulator() {
       let symbol;
       let multiplier;
 
-      if (winRand < (isHookPhase ? 0.6 : 0.7)) {
-        symbol = '🍒'; // Low
-      } else if (winRand < (isHookPhase ? 0.9 : 0.95)) {
-        symbol = Math.random() < 0.5 ? '🍋' : '🔔'; // Mid
+      if (isHookPhase) {
+        if (winRand < 0.75) {
+          symbol = '🍒'; // Low
+        } else if (winRand < 0.90) {
+          symbol = '🍋'; // Mid 1
+        } else if (winRand < 0.97) {
+          symbol = '🔔'; // Mid 2
+        } else if (winRand < 0.99) {
+          symbol = '💎'; // Premium
+        } else {
+          symbol = '7️⃣'; // Jackpot
+        }
       } else {
-        symbol = Math.random() < 0.7 ? '💎' : '7️⃣'; // High/Jackpot
+        if (winRand < 0.90) {
+          symbol = '🍒'; // Low
+        } else if (winRand < 0.98) {
+          symbol = '🍋'; // Mid 1
+        } else if (winRand < 0.995) {
+          symbol = '🔔'; // Mid 2
+        } else if (winRand < 0.999) {
+          symbol = '💎'; // Premium
+        } else {
+          symbol = '7️⃣'; // Jackpot
+        }
       }
       
       multiplier = PAYTABLE[symbol];
@@ -228,7 +246,7 @@ function Simulator() {
                 className="setup-input"
                 value={initialBalanceInput}
                 onChange={(e) => setInitialBalanceInput(Number(e.target.value))}
-                min={10000}
+                min={0}
                 step={100000}
               />
             </div>
