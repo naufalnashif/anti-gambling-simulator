@@ -32,13 +32,29 @@ const RealityCheck = ({ onClose, gameOver, spinCount, lossAmount, fact }) => {
               <p>Status: <span className="text-lose">Sistem Menang Mutlak</span></p>
             </div>
 
-            <button
-              className="btn-primary"
-              onClick={() => window.location.reload()}
-              style={{ width: '100%', padding: '15px', fontSize: '1.1rem', background: 'linear-gradient(135deg, #333, #555)' }}
-            >
-              Coba Lagi (Reset)
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                className="btn-primary"
+                onClick={() => window.location.reload()}
+                style={{ flex: 1, padding: '12px', fontSize: '1rem', background: 'linear-gradient(135deg, #333, #555)' }}
+              >
+                Coba Lagi
+              </button>
+              <button
+                className="btn-primary"
+                onClick={onClose}
+                style={{ 
+                  flex: 1, 
+                  padding: '12px', 
+                  fontSize: '1rem', 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  boxShadow: 'none'
+                }}
+              >
+                Lihat Riwayat
+              </button>
+            </div>
           </>
         ) : (
           <>

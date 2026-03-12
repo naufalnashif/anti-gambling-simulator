@@ -4,7 +4,7 @@ import BalanceChart from '../components/BalanceChart';
 import { FACTS } from '../constants/facts';
 import RealityCheck from '../components/RealityCheck';
 import AlgorithmExposed from '../components/AlgorithmExposed';
-import { AlertTriangle, TrendingDown, Info, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, TrendingDown, Info, ShieldAlert, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import BandarControlToast from '../components/BandarControlToast';
 import BandarDashboard from '../components/BandarDashboard';
 import '../index.css';
@@ -302,9 +302,9 @@ function Simulator() {
         <div style={{ 
           position: 'fixed', 
           top: '20px', 
-          right: controlsVisible ? '20px' : '-350px', 
+          right: controlsVisible ? '20px' : '-280px', 
           display: 'flex', 
-          gap: '10px', 
+          gap: '12px', 
           zIndex: 1000,
           background: 'none', 
           padding: '0',
@@ -312,68 +312,80 @@ function Simulator() {
           backdropFilter: 'none',
           border: 'none',
           boxShadow: 'none',
-          transition: 'right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          transition: 'right 0.5s cubic-bezier(0.19, 1, 0.22, 1)'
         }}>
-          {/* Toggle Button */}
+          {/* Toggle Button - More professional styling */}
           <button
             onClick={() => setControlsVisible(!controlsVisible)}
             style={{
               position: 'absolute',
-              left: '-40px',
-              top: '10px',
-              background: 'rgba(255,255,255,0.1)',
+              left: '-45px',
+              top: '5px',
+              background: 'rgba(20, 20, 30, 0.8)',
               border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '50% 0 0 50%',
-              width: '40px',
-              height: '40px',
+              borderRadius: '12px',
+              width: '36px',
+              height: '36px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              color: '#fff',
-              backdropFilter: 'blur(10px)'
+              color: 'var(--accent-secondary)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
+              transition: 'all 0.3s ease'
             }}
+            className="control-toggle-btn"
           >
-            {controlsVisible ? '→' : '←'}
+            {controlsVisible ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
 
           <button
             onClick={() => setIsBandarMode(!isBandarMode)}
             className="glass-panel"
             style={{
-              padding: '10px 20px',
-              fontSize: '0.9rem',
+              padding: '10px 18px',
+              fontSize: '0.85rem',
               cursor: 'pointer',
               color: isBandarMode ? 'var(--accent-color)' : '#fff',
               border: `1px solid ${isBandarMode ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)'}`,
-              transition: 'all 0.2s',
-              background: isBandarMode ? 'rgba(255, 60, 100, 0.1)' : 'rgba(255,255,255,0.05)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              background: isBandarMode ? 'rgba(255, 60, 100, 0.15)' : 'rgba(255,255,255,0.05)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              fontWeight: 'bold',
-              boxShadow: '0 5px 15px rgba(0,0,0,0.3)'
+              fontWeight: '700',
+              boxShadow: isBandarMode ? '0 0 20px rgba(255, 60, 100, 0.2)' : '0 10px 25px rgba(0,0,0,0.3)',
+              borderRadius: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
             }}
           >
-            <ShieldAlert size={16} /> {isBandarMode ? 'MODE: BANDAR' : 'BECOME BANDAR'}
+            <ShieldAlert size={16} /> {isBandarMode ? 'BANDAR' : 'BECOME BANDAR'}
           </button>
 
           <button
             onClick={handleRestart}
             className="glass-panel"
             style={{
-              padding: '10px 20px',
-              fontSize: '0.9rem',
+              padding: '10px 18px',
+              fontSize: '0.85rem',
               cursor: 'pointer',
               color: '#fff',
               border: '1px solid rgba(255,255,255,0.1)',
-              transition: 'all 0.2s',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               background: 'rgba(255,255,255,0.05)',
-              boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
-              fontWeight: 'bold'
+              boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+              fontWeight: '700',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
             }}
           >
-            RESET
+            <RotateCcw size={16} /> RESET
           </button>
         </div>
         <h1><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
