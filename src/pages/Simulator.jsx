@@ -37,6 +37,7 @@ function Simulator() {
   const [currentFact, setCurrentFact] = useState('');
   const [bandarToast, setBandarToast] = useState({ visible: false, type: '', message: '' });
   const [hasShownNearMiss, setHasShownNearMiss] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
 
   // Bandar Mode States
   const [isBandarMode, setIsBandarMode] = useState(false);
@@ -85,7 +86,7 @@ function Simulator() {
 
   const getPhase = () => {
     if (isBandarMode) return bandarSettings.activePhase;
-    if (balance < betAmount || gameOver) return 'crash';
+    if (balance < 10000 || gameOver) return 'crash';
     if (spinCount <= 2) return 'hook';
     return 'drain';
   };
@@ -202,7 +203,7 @@ function Simulator() {
       setIsSpinning(false);
 
       // Determine if a Reality Check modal will be shown
-      const willShowRealityCheck = currentBalance < betAmount || newSpinCount % 3 === 0;
+      const willShowRealityCheck = currentBalance < 10000 || newSpinCount % 3 === 0;
 
       // Trigger Scenario Notifications
       if (!willShowRealityCheck) {
@@ -211,13 +212,12 @@ function Simulator() {
         } else if (outcome.isNearMiss && !hasShownNearMiss) {
           triggerBandarToast('near-miss', 'Memicu "Hampir Menang". Secara statistik, ini membuat pemain merasa kemenangan sudah dekat dan terus bermain.');
           setHasShownNearMiss(true);
-        } else if (currentBalance < betAmount * 2 && currentBalance >= betAmount) {
+        } else if (currentBalance < 50000 && currentBalance >= 10000) {
           triggerBandarToast('crash', 'Saldo kritis terdeteksi. Mengunci sistem untuk memastikan pemain tidak bisa melakukan "comeback".');
         }
       }
 
-      if (currentBalance < betAmount) {
-
+      if (currentBalance < 10000) {
         setGameOver(true);
         setShowRealityCheck(true);
       } else if (newSpinCount % 3 === 0) {
@@ -302,17 +302,41 @@ function Simulator() {
         <div style={{ 
           position: 'fixed', 
           top: '20px', 
-          right: '20px', 
+          right: controlsVisible ? '20px' : '-350px', 
           display: 'flex', 
           gap: '10px', 
           zIndex: 1000,
-          background: 'rgba(10, 10, 15, 0.8)',
-          padding: '10px',
-          borderRadius: '16px',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.05)',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+          background: 'none', 
+          padding: '0',
+          borderRadius: '0',
+          backdropFilter: 'none',
+          border: 'none',
+          boxShadow: 'none',
+          transition: 'right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
         }}>
+          {/* Toggle Button */}
+          <button
+            onClick={() => setControlsVisible(!controlsVisible)}
+            style={{
+              position: 'absolute',
+              left: '-40px',
+              top: '10px',
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '50% 0 0 50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#fff',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            {controlsVisible ? '→' : '←'}
+          </button>
+
           <button
             onClick={() => setIsBandarMode(!isBandarMode)}
             className="glass-panel"
@@ -327,7 +351,8 @@ function Simulator() {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              boxShadow: '0 5px 15px rgba(0,0,0,0.3)'
             }}
           >
             <ShieldAlert size={16} /> {isBandarMode ? 'MODE: BANDAR' : 'BECOME BANDAR'}
@@ -343,7 +368,9 @@ function Simulator() {
               color: '#fff',
               border: '1px solid rgba(255,255,255,0.1)',
               transition: 'all 0.2s',
-              background: 'rgba(255,255,255,0.05)'
+              background: 'rgba(255,255,255,0.05)',
+              boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
+              fontWeight: 'bold'
             }}
           >
             RESET
