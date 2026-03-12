@@ -166,8 +166,10 @@ function Simulator() {
     return (
       <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
         <div className="glass-panel setup-panel" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-          <h1 style={{ fontSize: '3rem', marginBottom: '10px' }}><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '30px' }}>Persiapkan mental Anda. Tentukan modal awal permainan.</p>
+          <div className="header" style={{ marginBottom: '30px' }}>
+            <h1><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
+            <p style={{ fontSize: '0.95rem', opacity: 0.8 }}>Persiapkan mental Anda. Tentukan modal awal permainan.</p>
+          </div>
           
           <form onSubmit={startGame}>
             <div style={{ textAlign: 'left', marginBottom: '20px' }}>
@@ -231,7 +233,7 @@ function Simulator() {
               </span>
             </div>
 
-            <div className={`balance-display ${winStatus === 'win' ? 'text-win' : winStatus === 'lose' ? 'text-lose' : ''} ${winStatus !== null ? 'pulsate' : ''}`}>
+            <div className={`balance-display ${winStatus === 'win' ? 'text-win pulsate-win' : winStatus === 'lose' ? 'text-lose pulsate-lose' : ''}`}>
               {formatCurrency(balance)}
             </div>
             <div style={{ height: '30px', margin: '5px 0' }}>

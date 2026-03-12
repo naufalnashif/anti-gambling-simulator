@@ -120,14 +120,24 @@ h1, h2, h3, h4, .outfit {
   color: #444;
 }
 
-.pulsate {
-  animation: pulsate 2s infinite ease-in-out;
+@keyframes pulsate-win {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 20px 0 rgba(0, 255, 136, 0.2); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
 }
 
-@keyframes pulsate {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 60, 100, 0.4); }
-  50% { transform: scale(1.02); box-shadow: 0 0 20px 0 rgba(255, 60, 100, 0.2); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 60, 100, 0); }
+@keyframes pulsate-lose {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 20px 0 rgba(255, 51, 102, 0.2); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); }
+}
+
+.pulsate-win {
+  animation: pulsate-win 2s infinite ease-in-out;
+}
+
+.pulsate-lose {
+  animation: pulsate-lose 2s infinite ease-in-out;
 }
 
 @keyframes pop-in {
@@ -376,7 +386,8 @@ h1, h2, h3, h4, .outfit {
   flex-direction: column;
   justify-content: center;
   word-wrap: break-word;
-  overflow: hidden;
+  /* Removal of overflow: hidden to allow tooltips to show */
+  position: relative;
 }
 
 .stat-value {
@@ -401,15 +412,18 @@ h1, h2, h3, h4, .outfit {
 }
 
 .header h1 {
-  font-size: 3.5rem;
+  font-size: clamp(2.2rem, 8vw, 4.5rem);
   letter-spacing: -1px;
   margin-bottom: 10px;
   text-transform: uppercase;
+  font-weight: 800;
 }
 
 .header p {
-  font-size: 1.2rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.25rem);
   color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 /* Tooltip container */
@@ -425,23 +439,24 @@ h1, h2, h3, h4, .outfit {
   visibility: hidden;
   width: max-content;
   max-width: 250px;
-  background-color: rgba(10, 10, 15, 0.95);
+  background-color: rgba(15, 15, 25, 0.98);
   color: #fff;
   text-align: left;
-  border-radius: 8px;
-  padding: 10px 15px;
+  border-radius: 12px;
+  padding: 12px 18px;
   position: absolute;
-  z-index: 10;
-  bottom: 125%;
+  z-index: 9999;
+  bottom: 140%;
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 1px solid var(--accent-secondary);
   font-size: 0.85rem;
   font-weight: normal;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  line-height: 1.4;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  line-height: 1.6;
+  pointer-events: none;
 }
 
 .tooltip-container .tooltip-text::after {
