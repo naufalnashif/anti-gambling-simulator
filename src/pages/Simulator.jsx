@@ -13,20 +13,18 @@ const BET_OPTIONS = [10000, 50000, 100000, 500000, 1000000];
 const PAYTABLE = {
   '🍒': 2,
   '🍋': 5,
-  '🔔': 15,
-  '💎': 50,
-  '7️⃣': 150
+  '🔔': 10,
+  '💎': 20,
+  '7️⃣': 50
 };
 
 function Simulator() {
   const [gameState, setGameState] = useState('setup'); // 'setup', 'playing'
   const [initialBalanceInput, setInitialBalanceInput] = useState(1000000);
   const [initialBalanceState, setInitialBalanceState] = useState(1000000);
-  
+
   const [balance, setBalance] = useState(0);
   const [betAmount, setBetAmount] = useState(100000);
-  const [volatility, setVolatility] = useState('LOW'); // 'LOW', 'HIGH'
-  const [freeSpins, setFreeSpins] = useState(0);
   const [history, setHistory] = useState([]);
   const [spinCount, setSpinCount] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -69,70 +67,64 @@ function Simulator() {
   };
 
   const getPhase = () => {
-    if ((balance < betAmount && freeSpins === 0) || gameOver) return 'crash';
+    if (balance < betAmount || gameOver) return 'crash';
     if (spinCount <= 2) return 'hook';
     return 'drain';
   };
 
   const determineOutcome = (currentSpinCount) => {
     const isHookPhase = currentSpinCount <= 2;
-    // Volatility adjustment: Low = frequent small wins, High = rare big wins
-    let winChance;
-    if (isHookPhase) {
-      winChance = currentSpinCount === 1 ? 0.98 : 0.90;
-    } else {
-      winChance = volatility === 'LOW' ? 0.25 : 0.08;
-    }
-    
+    const winChance = isHookPhase ? (currentSpinCount === 1 ? 0.98 : 0.90) : 0.15;
+
     const rand = Math.random();
-    
+
     if (rand < winChance) {
       // WIN LOGIC
       const winRand = Math.random();
       let symbol;
-      
+      let multiplier;
+
       if (isHookPhase) {
-        if (winRand < 0.75) symbol = '🍒';
-        else if (winRand < 0.90) symbol = '🍋';
-        else if (winRand < 0.97) symbol = '🔔';
-        else if (winRand < 0.99) symbol = '💎';
-        else symbol = '7️⃣';
-      } else {
-        // Volatility based symbol weight
-        if (volatility === 'LOW') {
-          if (winRand < 0.85) symbol = '🍒'; // mostly low
-          else if (winRand < 0.98) symbol = '🍋';
-          else symbol = '🔔';
+        if (winRand < 0.75) {
+          symbol = '🍒'; // Low
+        } else if (winRand < 0.90) {
+          symbol = '🍋'; // Mid 1
+        } else if (winRand < 0.97) {
+          symbol = '🔔'; // Mid 2
+        } else if (winRand < 0.99) {
+          symbol = '💎'; // Premium
         } else {
-          if (winRand < 0.40) symbol = '🍒';
-          else if (winRand < 0.70) symbol = '🍋';
-          else if (winRand < 0.90) symbol = '🔔';
-          else if (winRand < 0.97) symbol = '💎';
-          else symbol = '7️⃣';
+          symbol = '7️⃣'; // Jackpot
+        }
+      } else {
+        if (winRand < 0.90) {
+          symbol = '🍒'; // Low
+        } else if (winRand < 0.98) {
+          symbol = '🍋'; // Mid 1
+        } else if (winRand < 0.995) {
+          symbol = '🔔'; // Mid 2
+        } else if (winRand < 0.999) {
+          symbol = '💎'; // Premium
+        } else {
+          symbol = '7️⃣'; // Jackpot
         }
       }
-      
-      const multiplier = PAYTABLE[symbol];
+
+      multiplier = PAYTABLE[symbol];
       const payout = betAmount * multiplier;
 
-      // Random Free Spin Trigger (Psychological Design)
-      let winFreeSpins = 0;
-      if (Math.random() < 0.15) { // 15% chance to trigger free spins on any win
-        winFreeSpins = Math.floor(Math.random() * 3) + 3; // 3-5 free spins
-      }
-      
-      return { isWin: true, payout, symbols: [symbol, symbol, symbol], winFreeSpins };
+      return { isWin: true, payout, symbols: [symbol, symbol, symbol] };
     } else {
       // LOSS LOGIC
       const isNearMiss = !isHookPhase && Math.random() < 0.65;
-      
+
       if (isNearMiss) {
         const symbol1 = items[Math.floor(Math.random() * items.length)];
         let symbol3;
         do {
           symbol3 = items[Math.floor(Math.random() * items.length)];
         } while (symbol3 === symbol1);
-        
+
         return { isWin: false, payout: 0, symbols: [symbol1, symbol1, symbol3], isNearMiss: true };
       } else {
         return { isWin: false, payout: 0, symbols: generateLosingSymbols() };
@@ -153,34 +145,20 @@ function Simulator() {
   };
 
   const spin = () => {
-    if ((balance < betAmount && freeSpins === 0) || isSpinning || gameOver) return;
+    if (balance < betAmount || isSpinning || gameOver) return;
 
     setIsSpinning(true);
     setWinStatus(null);
-    
-    const isFreeSpin = freeSpins > 0;
-    let currentBalance = balance;
-    
-    if (isFreeSpin) {
-      setFreeSpins(prev => prev - 1);
-    } else {
-      currentBalance -= betAmount;
-    }
-    
+    let currentBalance = balance - betAmount;
     const newSpinCount = spinCount + 1;
-    
+
     setTimeout(() => {
       const outcome = determineOutcome(newSpinCount);
       setReels(outcome.symbols);
-      
+
       if (outcome.isWin && outcome.payout > 0) {
         setWinStatus('win');
         currentBalance += outcome.payout;
-        
-        if (outcome.winFreeSpins > 0) {
-          setFreeSpins(prev => prev + outcome.winFreeSpins);
-          triggerBandarToast('hook', `BONUS FREE SPINS! +${outcome.winFreeSpins} Putaran Gratis. Bandar memberikan 'gratisan' agar Anda merasa beruntung walau algoritma tetap menyedot saldo.`);
-        }
       } else {
         setWinStatus('lose');
       }
@@ -191,7 +169,7 @@ function Simulator() {
       setIsSpinning(false);
 
       // Determine if a Reality Check modal will be shown
-      const willShowRealityCheck = (currentBalance < betAmount && (freeSpins === 0 && !outcome.winFreeSpins)) || newSpinCount % 3 === 0;
+      const willShowRealityCheck = currentBalance < betAmount || newSpinCount % 3 === 0;
 
       // Trigger Scenario Notifications
       if (!willShowRealityCheck) {
@@ -205,21 +183,20 @@ function Simulator() {
         }
       }
 
-      if (currentBalance < betAmount && freeSpins === 0 && !outcome.winFreeSpins) {
-
+      if (currentBalance < betAmount) {
 
         setGameOver(true);
         setShowRealityCheck(true);
       } else if (newSpinCount % 3 === 0) {
         let selectedIndex;
-        
+
         if (shownFactIndices.length === 0) {
           selectedIndex = 0;
         } else if (shownFactIndices.length === 1) {
           selectedIndex = 1;
         } else {
           let availableIndices = FACTS.map((_, i) => i).filter(i => !shownFactIndices.includes(i));
-          
+
           if (availableIndices.length === 0) {
             availableIndices = FACTS.map((_, i) => i);
             setShownFactIndices([]);
@@ -260,12 +237,12 @@ function Simulator() {
             <h1><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
             <p style={{ fontSize: '0.95rem', opacity: 0.8 }}>Persiapkan mental Anda. Tentukan modal awal permainan.</p>
           </div>
-          
+
           <form onSubmit={startGame}>
             <div style={{ textAlign: 'left', marginBottom: '20px' }}>
               <label style={{ color: '#ccc', fontWeight: 'bold' }}>Modal Awal (Rupiah)</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 className="setup-input"
                 value={initialBalanceInput}
                 onChange={(e) => setInitialBalanceInput(Number(e.target.value))}
@@ -277,7 +254,7 @@ function Simulator() {
               MULAI BERMAIN
             </button>
           </form>
-          
+
           <p style={{ marginTop: '20px', fontSize: '0.85rem', color: '#666', fontStyle: 'italic' }}>
             *Ini adalah simulasi edukasi. Anda tidak membelanjakan uang sungguhan.
           </p>
@@ -289,15 +266,15 @@ function Simulator() {
   return (
     <div className="page-container">
       <div className="header" style={{ position: 'relative' }}>
-        <button 
+        <button
           onClick={handleRestart}
           className="glass-panel"
-          style={{ 
-            position: 'absolute', 
-            top: '0', 
-            right: '0', 
-            padding: '10px 20px', 
-            fontSize: '0.9rem', 
+          style={{
+            position: 'absolute',
+            top: '0',
+            right: '0',
+            padding: '10px 20px',
+            fontSize: '0.9rem',
             cursor: 'pointer',
             color: '#fff',
             border: '1px solid rgba(255,255,255,0.1)',
@@ -314,7 +291,7 @@ function Simulator() {
       <div className="simulator-grid">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
           <div className="glass-panel" style={{ padding: '30px', textAlign: 'center' }}>
-            
+
             <div className="tooltip-container" style={{ marginBottom: '10px' }}>
               <h2 className="outfit text-secondary">YOUR BALANCE</h2>
               <Info size={16} className="text-secondary" />
@@ -329,12 +306,12 @@ function Simulator() {
 
             <div style={{ margin: '20px 0' }}>
               <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '10px', fontWeight: 'bold' }}>PILIH TARUHAN (BET)</p>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '15px' }}>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {BET_OPTIONS.map(opt => (
                   <button
                     key={opt}
                     onClick={() => setBetAmount(opt)}
-                    disabled={isSpinning || balance < opt || freeSpins > 0}
+                    disabled={isSpinning || balance < opt}
                     className={`bet-btn ${betAmount === opt ? 'active' : ''}`}
                     style={{
                       padding: '8px 12px',
@@ -345,75 +322,29 @@ function Simulator() {
                       color: betAmount === opt ? '#000' : '#fff',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
-                      opacity: (balance < opt || (freeSpins > 0 && betAmount !== opt)) ? 0.3 : 1
+                      opacity: balance < opt ? 0.3 : 1
                     }}
                   >
-                    {opt >= 1000000 ? `${opt/1000000}JT` : `${opt/1000}K`}
+                    {opt >= 1000000 ? `${opt / 1000000}JT` : `${opt / 1000}K`}
                   </button>
                 ))}
               </div>
-
-              <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '10px', fontWeight: 'bold' }}>VOLATILITAS (POLA BAYARAN)</p>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                <button
-                  onClick={() => setVolatility('LOW')}
-                  disabled={isSpinning || freeSpins > 0}
-                  style={{
-                    flex: 1,
-                    padding: '10px',
-                    borderRadius: '8px',
-                    fontSize: '0.8rem',
-                    background: volatility === 'LOW' ? 'rgba(0, 242, 255, 0.2)' : 'rgba(255,255,255,0.05)',
-                    border: `1px solid ${volatility === 'LOW' ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)'}`,
-                    color: '#fff',
-                    cursor: 'pointer'
-                  }}
-                >
-                  LOW (Sering Menang, Kecil)
-                </button>
-                <button
-                  onClick={() => setVolatility('HIGH')}
-                  disabled={isSpinning || freeSpins > 0}
-                  style={{
-                    flex: 1,
-                    padding: '10px',
-                    borderRadius: '8px',
-                    fontSize: '0.8rem',
-                    background: volatility === 'HIGH' ? 'rgba(255, 60, 100, 0.2)' : 'rgba(255,255,255,0.05)',
-                    border: `1px solid ${volatility === 'HIGH' ? 'var(--lose-color)' : 'rgba(255,255,255,0.1)'}`,
-                    color: '#fff',
-                    cursor: 'pointer'
-                  }}
-                >
-                  HIGH (Jarang Menang, Besar)
-                </button>
-              </div>
             </div>
 
-            <div style={{ height: '40px', margin: '5px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              {freeSpins > 0 && (
-                <div className="pulsate-win" style={{ color: 'var(--accent-color)', fontWeight: 'bold', fontSize: '1rem' }}>
-                  FREE SPINS: {freeSpins}
-                </div>
-              )}
-              {winStatus === 'win' && <p className="text-win" style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>+ WIN!</p>}
-              {winStatus === 'lose' && <p className="text-lose" style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>LOSER</p>}
+            <div style={{ height: '30px', margin: '5px 0' }}>
+              {winStatus === 'win' && <p className="text-win" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>+ WIN!</p>}
+              {winStatus === 'lose' && <p className="text-lose" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>LOSER</p>}
             </div>
 
             <SlotMachine reels={reels} isSpinning={isSpinning} />
-            
-            <button 
-              className="btn-primary" 
-              onClick={spin} 
-              disabled={isSpinning || (balance < betAmount && freeSpins === 0) || gameOver}
-              style={{ width: '100%', maxWidth: '300px', margin: '20px auto 0', position: 'relative', overflow: 'hidden' }}
+
+            <button
+              className="btn-primary"
+              onClick={spin}
+              disabled={isSpinning || balance < betAmount || gameOver}
+              style={{ width: '100%', maxWidth: '300px', margin: '20px auto 0' }}
             >
-              {freeSpins > 0 ? (
-                <span>FREE SPIN ACTIVE ({freeSpins})</span>
-              ) : (
-                <span>{isSpinning ? 'SPINNING...' : `SPIN (${formatCurrency(betAmount)})`}</span>
-              )}
-              {freeSpins > 0 && <div className="bonus-shimmer"></div>}
+              {isSpinning ? 'SPINNING...' : `SPIN (${formatCurrency(betAmount)})`}
             </button>
           </div>
 
@@ -431,29 +362,29 @@ function Simulator() {
           </div>
 
           <div className="glass-panel" style={{ padding: '30px', display: 'flex', gap: '20px', justifyContent: 'space-around', flexWrap: 'wrap' }}>
-              <div className="stat-card" style={{ flex: 1, minWidth: '150px' }}>
-                <div className="tooltip-container" style={{ marginBottom: '10px' }}>
-                  <h3 className="text-secondary">Total Spins</h3>
-                  <Info size={14} className="text-secondary" />
-                  <span className="tooltip-text">
-                    Berapa kali Anda telah menekan tombol putar. Semakin sering diputar, semakin pasti uang Anda habis ke Admin (Bandar).
-                  </span>
-                </div>
-                <p className="stat-value">{spinCount}</p>
+            <div className="stat-card" style={{ flex: 1, minWidth: '150px' }}>
+              <div className="tooltip-container" style={{ marginBottom: '10px' }}>
+                <h3 className="text-secondary">Total Spins</h3>
+                <Info size={14} className="text-secondary" />
+                <span className="tooltip-text">
+                  Berapa kali Anda telah menekan tombol putar. Semakin sering diputar, semakin pasti uang Anda habis ke Admin (Bandar).
+                </span>
               </div>
+              <p className="stat-value">{spinCount}</p>
+            </div>
 
-              <div className="stat-card" style={{ flex: 1, minWidth: '150px' }}>
-                <div className="tooltip-container" style={{ marginBottom: '10px' }}>
-                  <h3 className="text-secondary">Net Profit/Loss</h3>
-                  <Info size={14} className="text-secondary" />
-                  <span className="tooltip-text">
-                    Selisih antara uang Anda sekarang dibandingkan saat pertama kali memulai. Merah artinya Anda MERUGI.
-                  </span>
-                </div>
-                <p className={`stat-value ${balance >= initialBalanceState ? 'text-win' : 'text-lose'}`}>
-                  {formatCurrency(balance - initialBalanceState)}
-                </p>
+            <div className="stat-card" style={{ flex: 1, minWidth: '150px' }}>
+              <div className="tooltip-container" style={{ marginBottom: '10px' }}>
+                <h3 className="text-secondary">Net Profit/Loss</h3>
+                <Info size={14} className="text-secondary" />
+                <span className="tooltip-text">
+                  Selisih antara uang Anda sekarang dibandingkan saat pertama kali memulai. Merah artinya Anda MERUGI.
+                </span>
               </div>
+              <p className={`stat-value ${balance >= initialBalanceState ? 'text-win' : 'text-lose'}`}>
+                {formatCurrency(balance - initialBalanceState)}
+              </p>
+            </div>
           </div>
 
           <AlgorithmExposed spinCount={spinCount} currentPhase={getPhase()} />
@@ -461,32 +392,32 @@ function Simulator() {
         </div>
 
         <div className="sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
-        <div className="glass-panel" style={{ padding: '30px', height: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '30px' }}>
-            <TrendingDown className="text-lose" size={28} />
-            <h2 className="outfit text-gradient" style={{ fontSize: '1.8rem' }}>Balance History</h2>
-          </div>
-          
-          <BalanceChart data={history} />
-          
-          <div style={{ marginTop: '40px', padding: '20px', background: 'rgba(255, 60, 100, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 60, 100, 0.2)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-              <AlertTriangle className="text-lose" size={24} />
-              <h3 className="text-lose" style={{ fontSize: '1.2rem' }}>Reality Note</h3>
+          <div className="glass-panel" style={{ padding: '30px', height: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '30px' }}>
+              <TrendingDown className="text-lose" size={28} />
+              <h2 className="outfit text-gradient" style={{ fontSize: '1.8rem' }}>Balance History</h2>
             </div>
-            <p className="fact-text" style={{ margin: 0, fontSize: '0.95rem', borderLeftColor: 'var(--lose-color)' }}>
-              Notice how your balance trends downwards over time. Occasional small wins are designed to give you false hope, keeping you playing until your balance reaches zero.
-            </p>
+
+            <BalanceChart data={history} />
+
+            <div style={{ marginTop: '40px', padding: '20px', background: 'rgba(255, 60, 100, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 60, 100, 0.2)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                <AlertTriangle className="text-lose" size={24} />
+                <h3 className="text-lose" style={{ fontSize: '1.2rem' }}>Reality Note</h3>
+              </div>
+              <p className="fact-text" style={{ margin: 0, fontSize: '0.95rem', borderLeftColor: 'var(--lose-color)' }}>
+                Notice how your balance trends downwards over time. Occasional small wins are designed to give you false hope, keeping you playing until your balance reaches zero.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-      
-      {/* Membungkus simulator-grid */}
+
+        {/* Membungkus simulator-grid */}
       </div>
 
       {showRealityCheck && (
-        <RealityCheck 
-          onClose={() => setShowRealityCheck(false)} 
+        <RealityCheck
+          onClose={() => setShowRealityCheck(false)}
           gameOver={gameOver}
           spinCount={spinCount}
           lossAmount={initialBalanceState - balance}
@@ -494,7 +425,7 @@ function Simulator() {
         />
       )}
 
-      <BandarControlToast 
+      <BandarControlToast
         type={bandarToast.type}
         message={bandarToast.message}
         visible={bandarToast.visible}
