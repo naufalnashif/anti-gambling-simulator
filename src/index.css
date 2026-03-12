@@ -186,7 +186,7 @@ h1, h2, h3, h4, .outfit {
   gap: 10px;
   justify-content: center;
   margin: 20px 0;
-  padding: 15px;
+  padding: 10px;
   background: linear-gradient(180deg, #1a1a24 0%, var(--slot-bg) 100%);
   border-radius: 20px;
   border: 2px solid #2a2a35;
@@ -198,6 +198,7 @@ h1, h2, h3, h4, .outfit {
 
 .slot-reel {
   flex: 1;
+  min-width: 0; /* Allow shrinking below content size */
   max-width: 100px;
   height: 100px;
   background: #000;
@@ -214,14 +215,26 @@ h1, h2, h3, h4, .outfit {
 
 @media (max-width: 480px) {
   .slot-reel {
-    height: 80px;
-    font-size: 2.5rem;
+    height: 70px;
+    font-size: 2.2rem;
   }
   .balance-display {
-    font-size: 2.2rem !important;
+    font-size: 2rem !important;
   }
   .setup-panel {
-    padding: 20px;
+    padding: 15px !important;
+    width: 90% !important;
+    margin: 40px auto !important;
+  }
+  .glass-panel {
+    padding: 20px 15px !important;
+  }
+  .main-content {
+    padding: 15px 10px !important;
+  }
+  .slot-machine-container {
+    padding: 8px;
+    gap: 8px;
   }
 }
 
