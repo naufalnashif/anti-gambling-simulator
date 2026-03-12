@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import SlotMachine from '../components/SlotMachine';
 import BalanceChart from '../components/BalanceChart';
-import RealityCheck, { FACTS } from '../components/RealityCheck';
+import { FACTS } from '../constants/facts';
+import RealityCheck from '../components/RealityCheck';
 import AlgorithmExposed from '../components/AlgorithmExposed';
 import { AlertTriangle, TrendingDown, Info } from 'lucide-react';
 import '../index.css';
@@ -46,28 +47,51 @@ function Simulator() {
 
   const determineOutcome = (currentSpinCount) => {
     if (currentSpinCount <= 2) {
+      // Hook phase: high win probability
       const isWin = Math.random() < 0.8;
       if (isWin) {
-        return { isWin: true, payout: 250000 + Math.floor(Math.random() * 200000), symbols: ['💎', '💎', '💎'] };
+        const symbol = items[Math.floor(Math.random() * items.length)];
+        return { isWin: true, payout: 250000 + Math.floor(Math.random() * 200000), symbols: [symbol, symbol, symbol] };
       }
-      return { isWin: false, payout: 0, symbols: ['🍒', '🍋', '🔔'] };
+      return { isWin: false, payout: 0, symbols: generateLosingSymbols() };
     }
     
     const rand = Math.random();
     
     if (rand < 0.12) {
-      return { isWin: true, payout: 100000, symbols: ['🍒', '🍒', '🍒'] }; // Break-even win
+      // Break-even win: Sync symbols to 3 same
+      const symbol = items[Math.floor(Math.random() * items.length)];
+      return { isWin: true, payout: 100000, symbols: [symbol, symbol, symbol] };
     } else if (rand < 0.25) {
-      return { isWin: true, payout: 150000, symbols: ['🍋', '🍋', '🍋'] }; // Small profit win
+      // Small profit win: Sync symbols to 3 same
+      const symbol = items[Math.floor(Math.random() * items.length)];
+      return { isWin: true, payout: 150000, symbols: [symbol, symbol, symbol] };
     } else if (rand < 0.5) {
-      return { isWin: false, payout: 0, symbols: ['7️⃣', '7️⃣', '🔔'] }; // Near miss (2 the same)
+      // Near miss (2 the same): NEVER 3 same
+      const symbol1 = items[Math.floor(Math.random() * items.length)];
+      let symbol2 = symbol1;
+      let symbol3;
+      do {
+        symbol3 = items[Math.floor(Math.random() * items.length)];
+      } while (symbol3 === symbol1);
+      
+      return { isWin: false, payout: 0, symbols: [symbol1, symbol2, symbol3] };
     } else {
-      return { isWin: false, payout: 0, symbols: [
-        items[Math.floor(Math.random() * items.length)],
-        items[Math.floor(Math.random() * items.length)],
-        items[Math.floor(Math.random() * items.length)]
-      ]};
+      // Total loss: NEVER 3 same
+      return { isWin: false, payout: 0, symbols: generateLosingSymbols() };
     }
+  };
+
+  const generateLosingSymbols = () => {
+    const s1 = items[Math.floor(Math.random() * items.length)];
+    const s2 = items[Math.floor(Math.random() * items.length)];
+    const s3 = items[Math.floor(Math.random() * items.length)];
+    // Ensure not all three are same
+    if (s1 === s2 && s2 === s3) {
+      const otherSymbols = items.filter(i => i !== s1);
+      return [s1, s2, otherSymbols[Math.floor(Math.random() * otherSymbols.length)]];
+    }
+    return [s1, s2, s3];
   };
 
   const spin = () => {
