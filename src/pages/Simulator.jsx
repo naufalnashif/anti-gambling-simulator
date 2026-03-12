@@ -105,9 +105,9 @@ function Simulator() {
 
   if (gameState === 'setup') {
     return (
-      <div className="page-container setup-container">
-        <div className="glass-panel setup-panel">
-          <h1 style={{ marginBottom: '10px' }}><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
+      <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <div className="glass-panel setup-panel" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+          <h1 style={{ fontSize: '3rem', marginBottom: '10px' }}><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '30px' }}>Persiapkan mental Anda. Tentukan modal awal permainan.</p>
           
           <form onSubmit={startGame}>

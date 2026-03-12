@@ -26,7 +26,6 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -184,28 +183,30 @@ h1, h2, h3, h4, .outfit {
 
 .slot-machine-container {
   display: flex;
-  gap: 15px;
+  gap: 10px;
   justify-content: center;
-  margin: 30px 0;
-  padding: 20px;
+  margin: 20px 0;
+  padding: 15px;
   background: linear-gradient(180deg, #1a1a24 0%, var(--slot-bg) 100%);
   border-radius: 20px;
   border: 2px solid #2a2a35;
   box-shadow: inset 0 10px 30px rgba(0,0,0,0.8), 0 10px 40px rgba(0,0,0,0.5);
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .slot-reel {
-  width: 100px;
-  max-width: 25vw;
-  height: 120px;
+  flex: 1;
+  max-width: 100px;
+  height: 100px;
   background: #000;
   border-radius: 12px;
   border: 1px solid #333;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 4rem;
+  font-size: 3rem;
   overflow: hidden;
   position: relative;
   box-shadow: inset 0 0 20px rgba(0,0,0,1);
@@ -216,9 +217,11 @@ h1, h2, h3, h4, .outfit {
     height: 80px;
     font-size: 2.5rem;
   }
-  .slot-machine-container {
-    gap: 8px;
-    padding: 10px;
+  .balance-display {
+    font-size: 2.2rem !important;
+  }
+  .setup-panel {
+    padding: 20px;
   }
 }
 
@@ -234,16 +237,8 @@ h1, h2, h3, h4, .outfit {
 .layout-wrapper {
   display: flex;
   min-height: 100vh;
-  min-height: 100dvh;
   width: 100vw;
-  overflow: hidden; /* Prevent body scroll on desktop */
-}
-
-@media (max-width: 768px) {
-  .layout-wrapper {
-    overflow-y: auto; /* Allow scroll on mobile */
-    height: 100dvh;
-  }
+  overflow: hidden; /* Prevent body scroll */
 }
 
 .sidebar-nav {
@@ -293,19 +288,9 @@ h1, h2, h3, h4, .outfit {
 .main-content {
   flex: 1;
   height: 100vh;
-  height: 100dvh;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 30px;
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    height: auto;
-    min-height: calc(100dvh - 60px);
-    padding: 20px 15px;
-    overflow-y: visible;
-  }
 }
 
 /* Page Containers */
@@ -328,8 +313,13 @@ h1, h2, h3, h4, .outfit {
   }
 }
 
-.mobile-topbar {
+/* Mobile Adjustments */
+.mobile-menu-btn {
   display: none;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {
@@ -353,14 +343,11 @@ h1, h2, h3, h4, .outfit {
     border-bottom: 1px solid var(--glass-border);
     backdrop-filter: blur(10px);
   }
-  .sidebar-brand {
-    display: none; /* Hide brand in mobile sidebar since it's in topbar */
-  }
   .mobile-menu-btn {
     display: block;
   }
   .main-content {
-    height: auto;
+    height: calc(100vh - 60px);
     padding: 20px 15px;
   }
 }
@@ -390,15 +377,6 @@ h1, h2, h3, h4, .outfit {
   letter-spacing: -1px;
   margin-bottom: 10px;
   text-transform: uppercase;
-}
-
-@media (max-width: 768px) {
-  .header h1 {
-    font-size: 2.2rem;
-  }
-  .balance-display {
-    font-size: 2.5rem !important;
-  }
 }
 
 .header p {
@@ -454,42 +432,11 @@ h1, h2, h3, h4, .outfit {
   opacity: 1;
 }
 
-.setup-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100dvh - 60px); /* Account for mobile topbar */
-  padding: 20px 0;
-}
-
-@media (min-width: 768px) {
-  .setup-container {
-    min-height: 100%;
-  }
-}
-
 .setup-panel {
   max-width: 500px;
-  width: 90%;
-  margin: auto;
-  padding: 30px 20px;
+  margin: 100px auto;
+  padding: 40px;
   text-align: center;
-}
-
-@media (min-width: 768px) {
-  .setup-panel {
-    padding: 40px;
-  }
-}
-
-@media (max-width: 480px) {
-  .setup-panel h1 {
-    font-size: 2.2rem !important;
-  }
-  .setup-panel p {
-    font-size: 0.9rem;
-    margin-bottom: 20px !important;
-  }
 }
 
 .setup-input {
