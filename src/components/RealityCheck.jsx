@@ -3,11 +3,11 @@ import { AlertCircle, XCircle } from 'lucide-react';
 import '../index.css';
 
 const FACTS = [
-  "Tahukah Anda? Sistem judi online diprogram agar bandar selalu menang (House Edge). Kemenangan di awal hanyalah trik untuk membuat Anda kecanduan.",
-  "Kecanduan judi merusak dopamin otak Anda. Anda tidak lagi bermain untuk menang, tapi bermain untuk sensasi, meski tahu akan kalah.",
-  "Setiap kali Anda merasa 'hampir menang' (near miss), itu adalah manipulasi visual agar Anda terus memasang taruhan.",
-  "Ratusan ribu orang telah kehilangan harta, keluarga, dan masa depan karena terjebak janji palsu judi online.",
-  "Judi online bukanlah cara cepat kaya, melainkan cara paling pasti untuk jatuh miskin."
+  "Judi online hanya memberikan kemenangan semu (dopamin) di awal, di mana setelah itu hanya terdapat kekalahan yang telah direncanakan oleh sistem.",
+  "Hasil 'Near Win' (dua gambar sama) adalah ilusi visual yang sengaja diciptakan agar Anda merasa 'sedikit lagi menang' dan terus memutar mesin.",
+  "Bandar tidak pernah rugi. Setiap kemenangan kecil yang Anda rasakan hanyalah bagian dari rotasi saldo pemain lain untuk menjaga Anda tetap bermain.",
+  "Algoritma judi online dirancang untuk mengeksploitasi psikologi manusia. Dorongan untuk kembali bermain adalah hasil manipulasi, bukan logika.",
+  "RTP dalam judi online dapat diubah sewaktu-waktu oleh operator. Tidak ada keadilan dalam sistem yang dikendalikan penuh oleh pemilik situs."
 ];
 
 const RealityCheck = ({ onClose, gameOver, spinCount, lossAmount }) => {
@@ -19,43 +19,52 @@ const RealityCheck = ({ onClose, gameOver, spinCount, lossAmount }) => {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content glass-panel" style={{ border: gameOver ? '1px solid var(--lose-color)' : '1px solid var(--accent-secondary)' }}>
+      <div className="modal-content glass-panel" style={{ 
+        border: gameOver ? '1px solid var(--lose-color)' : '1px solid var(--accent-secondary)',
+        padding: '30px 20px',
+        maxWidth: '450px' 
+      }}>
         
         {gameOver ? (
           <>
-            <XCircle size={80} className="text-lose pulsate" style={{ margin: '0 auto 20px', display: 'block' }} />
-            <h1 className="outfit text-lose" style={{ fontSize: '2.5rem', marginBottom: '10px' }}>BANKRUPT</h1>
-            <h2 style={{ color: '#fff', marginBottom: '20px' }}>You lost {formatCurrency(lossAmount)}.</h2>
+            <XCircle size={60} className="text-lose" style={{ margin: '0 auto 15px', display: 'block' }} />
+            <h1 className="outfit text-lose" style={{ fontSize: 'clamp(1.5rem, 5vw, 2.22rem)', marginBottom: '5px' }}>SESI BERAKHIR</h1>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.9rem' }}>Realitas di balik layar terungkap.</p>
             
-            <p className="fact-text" style={{ fontSize: '1.2rem', borderColor: 'var(--lose-color)', background: 'rgba(255, 51, 102, 0.1)', padding: '20px', borderRadius: '12px' }}>
-              In just <strong className="text-lose">{spinCount}</strong> spins, the system took all your money. 
-              <br/><br/>
-              This is the reality of online gambling (Judol). It is not definitively fair, you will always eventually lose, and the algorithms are designed to bleed you dry.
-            </p>
+            <div style={{ background: 'rgba(255, 51, 102, 0.05)', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px solid rgba(255, 51, 102, 0.1)' }}>
+              <p style={{ color: '#fff', fontSize: '1rem', lineHeight: '1.5', margin: 0 }}>
+                Dalam <strong className="text-lose">{spinCount} putaran</strong>, modal Anda habis. Ini bukan sekadar nasib buruk, melainkan hasil akhir yang sudah dipastikan oleh algoritma sistem.
+              </p>
+            </div>
+
+            <div style={{ textAlign: 'left', marginBottom: '25px', fontSize: '0.9rem', color: '#aaa' }}>
+              <p>Total Kerugian Virtual: <span className="text-lose" style={{ fontWeight: 'bold' }}>{formatCurrency(lossAmount)}</span></p>
+              <p>Status: <span className="text-lose">Sistem Menang Mutlak</span></p>
+            </div>
 
             <button 
               className="btn-primary" 
               onClick={() => window.location.reload()}
-              style={{ marginTop: '20px', background: 'linear-gradient(135deg, #333, #555)' }}
+              style={{ width: '100%', padding: '15px', fontSize: '1.1rem', background: 'linear-gradient(135deg, #333, #555)' }}
             >
-              Restart Simulation
+              Coba Lagi (Reset)
             </button>
           </>
         ) : (
           <>
-            <AlertCircle size={60} className="text-accent pulsate" style={{ margin: '0 auto 20px', display: 'block' }} />
-            <h2 className="outfit text-accent" style={{ fontSize: '2rem', marginBottom: '20px' }}>REALITY CHECK</h2>
+            <AlertCircle size={50} className="text-accent" style={{ margin: '0 auto 15px', display: 'block' }} />
+            <h2 className="outfit text-accent" style={{ fontSize: '1.5rem', marginBottom: '15px' }}>Paham Risikonya?</h2>
             
-            <p className="fact-text" style={{ fontSize: '1.1rem', background: 'rgba(0, 229, 255, 0.05)', padding: '20px', borderRadius: '12px' }}>
+            <p className="fact-text" style={{ fontSize: '0.95rem', background: 'rgba(0, 229, 255, 0.05)', padding: '15px', borderRadius: '12px', borderLeftColor: 'var(--accent-secondary)' }}>
               {randomFact}
             </p>
 
-            <p style={{ color: '#888', marginBottom: '30px', fontSize: '0.9rem' }}>
-              Current loss trend: {lossAmount > 0 ? formatCurrency(lossAmount) : 'Rp 0'}
-            </p>
+            <div style={{ margin: '20px 0', fontSize: '0.85rem', color: '#888' }}>
+              Tren Kerugian Saat Ini: <span className="text-lose">{formatCurrency(lossAmount)}</span>
+            </div>
             
-            <button className="btn-primary" onClick={onClose} style={{ width: '100%' }}>
-              I Understand
+            <button className="btn-primary" onClick={onClose} style={{ width: '100%', padding: '12px', fontSize: '1rem' }}>
+              Saya Paham & Lanjut
             </button>
           </>
         )}

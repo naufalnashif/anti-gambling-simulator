@@ -1,16 +1,31 @@
-# React + Vite
+# Zeus Casino: The Illusion of Winning
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A professional interactive web simulator designed to expose the psychological and mathematical manipulation used by online gambling operators.
 
-Currently, two official plugins are available:
+## 🎯 Educational Mission Statement
+Aplikasi ini bukan sekadar permainan, melainkan alat kampanye anti-judi online. Misi kami adalah memberikan kesadaran nyata bahwa:
+- **Judi online bukan jalan pintas finansial**, melainkan sistem yang dirancang untuk kemenangan mutlak bandar.
+- **Dopamin di awal adalah jebakan**, kemenangan kecil sengaja diberikan untuk membangun adiksi.
+- **Algoritma tidak bisa dikalahkan**, sistem menggunakan taktik manipulasi visual seperti 'Near Win' untuk menjaga pemain tetap terjebak.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
+- **Rigged Game Engine**: Mensimulasikan fase-fase jebakan bandar (Hook, Drain, Crash).
+- **Algorithm Transparency**: Panel "Di Balik Layar" yang menunjukkan bagaimana probabilitas diatur secara live.
+- **Balance Analysis**: Grafik tren saldo yang menunjukkan penurunan kekayaan pemain secara matematis.
+- **Educational Modules**: Artikel edukasi mengenai taktik bandar, dampak neurobiologi, dan risiko hukum.
+- **Responsive Dashboard**: Layout profesional yang dioptimalkan untuk Desktop, iPad, dan Smartphone.
 
-## React Compiler
+## 💻 Tech Stack
+- React + Vite
+- Lucide React (Icons)
+- Recharts (Data Visualization)
+- Vanilla CSS (Glassmorphism & Fluid Typography)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ How to Run
+1. Clone repository ini.
+2. Jalankan `npm install`.
+3. Jalankan `npm run dev`.
+Atau gunakan launcher yang tersedia: `start_mac.command`, `start_linux.sh`, atau `start_windows.bat`.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+*Simulasi ini murni untuk tujuan edukasi. Tidak menggunakan uang sungguhan. Say NO to online gambling.*
