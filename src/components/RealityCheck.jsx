@@ -3,21 +3,21 @@ import { AlertCircle, XCircle } from 'lucide-react';
 import '../index.css';
 
 export const FACTS = [
-  "Judi online hanya memberikan kemenangan semu (dopamin) di awal, di mana setelah itu hanya terdapat kekalahan yang telah direncanakan oleh sistem.",
-  "Hasil 'Near Win' (dua gambar sama) adalah ilusi visual yang sengaja diciptakan agar Anda merasa 'sedikit lagi menang' dan terus memutar mesin.",
-  "Bandar tidak pernah rugi. Setiap kemenangan kecil yang Anda rasakan hanyalah bagian dari rotasi saldo pemain lain untuk menjaga Anda tetap bermain.",
-  "Algoritma judi online dirancang untuk mengeksploitasi psikologi manusia. Dorongan untuk kembali bermain adalah hasil manipulasi, bukan logika.",
-  "RTP dalam judi online dapat diubah sewaktu-waktu oleh operator. Tidak ada keadilan dalam sistem yang dikendalikan penuh oleh pemilik situs.",
-  "Fitur 'Auto-spin' mempercepat penguapan saldo Anda. Semakin cepat Anda bermain, semakin cepat algoritma penyedotan saldo bekerja.",
-  "Setiap detik di situs judi, data perilaku Anda dipelajari oleh AI untuk menentukan kapan harus memberikan 'kemenangan pancingan'.",
-  "Uang yang Anda kalahkan adalah keuntungan pasti bagi pengembang platform, sementara harapan Anda akan keberuntungan adalah variabel yang mereka kendalikan.",
-  "Skema deposit yang mudah dan withdraw yang sulit adalah taktik psikologis agar Anda terus memutar saldo yang sudah dimenangkan.",
-  "Kemenangan besar seorang pemain seringkali dipromosikan (endorse) untuk menciptakan ilusi bahwa kemenangan adalah hal yang umum, padahal itu pengecualian.",
-  "Admin situs memiliki kontrol penuh untuk memblokir akun yang menang terlalu banyak, memastikan 'House Always Wins' bukan sekadar mitos.",
-  "Ilusi kontrol: Anda merasa bisa membaca pola (pola gacor), padahal setiap putaran adalah hasil acak yang sudah dikalibrasi untuk kerugian jangka panjang.",
-  "Suara dan cahaya yang meriah saat menang adalah teknik Pavlovian untuk melatih otak Anda mengharapkan hadiah dari aktivitas yang merusak.",
-  "Banyak situs judi menggunakan bot untuk menciptakan suasana ramai dan memicu rasa kompetitif atau takut ketinggalan (FOMO) pada pemain asli.",
-  "Kerugian finansial hanyalah awal; adiksi judi online merusak struktur saraf otak yang mengatur pengambilan keputusan dan kontrol emosi."
+  "judol hanya memberikan kemenangan semu (memberikan dopamin di awal) dimana setelah itu hanya terdapat kekalahan",
+  "hasil bisa berupa near win, dimana ada 2 yang sama, ini ilusi agar terus bermain",
+  "Saldo lu dikuras pelan-pelan sama bandar. Menang dikit itu cuma pancingan biar lu nggak berhenti pasang.",
+  "Jangan ketipu 'pola gacor'. Itu semua settingan admin biar lu ngerasa bisa nebak arah main, padahal ujungnya ludes.",
+  "Admin situs bisa ngelihat semua data lu. Mereka tau kapan lu lagi 'panas' dan kapan harus narik saldo lu sampe abis.",
+  "Depo gampang, WD dipersulit. Itu taktik biar lu mainin lagi saldo menang lu sampe akhirnya balik ke kantong bandar.",
+  "Lu nggak lagi main lawan mesin adil, lu lagi main lawan algoritma yang udah disetting harus untung gede buat yang punya situs.",
+  "Visual yang rame sama suara 'jackpot' itu trik psikologi biar otak lu nagih terus, padahal dompet lu makin tipis.",
+  "Pernah ngerasa 'dikit lagi dapet'? Itu namanya Near Miss. Emang sengaja dibuat gitu biar lu penasaran dan depo lagi.",
+  "Udah banyak yang hancur karena mikir judi itu jalan pintas cari duit. Faktanya, jalan pintas buat miskin ya cuma judi.",
+  "RTP (Return to Player) itu cuma angka formalitas. Di lapangan, admin bisa mutus scatter kapan aja mereka mau.",
+  "Situs judi itu bukan tempat nyari cuan, itu tempat hiburan berbayar yang harganya mahal banget: masa depan lu sendiri.",
+  "Kalau emang bisa kaya dari judi, nggak bakal ada iklan judi di mana-mana. Iklan itu ada karena mereka butuh duit lu buat mereka kaya.",
+  "Stop mumpung belum abis semua. Uang yang hilang nggak bakal balik lewat judi, malah bakal makin nambah utang.",
+  "Ingat keluarga di rumah. Duit buat jajan anak atau beli beras jangan dikasih ke bandar yang udah kaya raya."
 ];
 
 const RealityCheck = ({ onClose, gameOver, spinCount, lossAmount, fact }) => {
@@ -25,7 +25,6 @@ const RealityCheck = ({ onClose, gameOver, spinCount, lossAmount, fact }) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
   };
 
-  // Use passed fact or fall back to a random one if not provided (for safety)
   const displayFact = fact || FACTS[Math.floor(Math.random() * FACTS.length)];
 
   return (

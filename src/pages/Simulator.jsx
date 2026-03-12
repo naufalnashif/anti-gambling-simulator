@@ -96,18 +96,24 @@ function Simulator() {
         setGameOver(true);
         setShowRealityCheck(true);
       } else if (newSpinCount % 3 === 0) {
-        // Handle non-repeating fact selection
-        let availableIndices = FACTS.map((_, i) => i).filter(i => !shownFactIndices.includes(i));
+        let selectedIndex;
         
-        // If all facts have been shown, reset the pool
-        if (availableIndices.length === 0) {
-          availableIndices = FACTS.map((_, i) => i);
-          setShownFactIndices([]);
+        if (shownFactIndices.length === 0) {
+          selectedIndex = 0;
+        } else if (shownFactIndices.length === 1) {
+          selectedIndex = 1;
+        } else {
+          let availableIndices = FACTS.map((_, i) => i).filter(i => !shownFactIndices.includes(i));
+          
+          if (availableIndices.length === 0) {
+            availableIndices = FACTS.map((_, i) => i);
+            setShownFactIndices([]);
+          }
+          selectedIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
         }
 
-        const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-        setCurrentFact(FACTS[randomIndex]);
-        setShownFactIndices(prev => [...prev, randomIndex]);
+        setCurrentFact(FACTS[selectedIndex]);
+        setShownFactIndices(prev => [...prev, selectedIndex]);
         setShowRealityCheck(true);
       }
     }, 1500);
