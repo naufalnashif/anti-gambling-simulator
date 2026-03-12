@@ -14,9 +14,9 @@ function App() {
 
   // Auto-start tutorial on first visit
   React.useEffect(() => {
-    const hasSeenTutorial = localStorage.getItem('hasSeenZeusTutorialV2');
+    const hasSeenTutorial = localStorage.getItem('hasSeenZeusTutorialV3');
     if (!hasSeenTutorial) {
-      setTimeout(() => setIsTutorialActive(true), 1500);
+      setTimeout(() => setIsTutorialActive(true), 2000);
     }
   }, []);
 
@@ -61,82 +61,113 @@ function App() {
     },
     {
       title: "Saldo Virtual Anda",
-      message: "Masukkan nominal modal yang ingin Anda simulasikan. Ingat, ini adalah saldo virtual (gratis) untuk tujuan edukasi.",
-      targetId: 'setup-panel', // Focusing the input area
+      message: "Masukkan nominal modal yang ingin Anda simulasikan. Ingat, ini adalah saldo virtual untuk tujuan edukasi.",
+      targetId: 'setup-panel',
       action: () => setTutorialStep(6)
     },
     {
       title: "Konfirmasi Bermain",
-      message: "Klik 'MULAI BERMAIN' untuk mengaktifkan mesin slot dan melihat bagaimana uang Anda diolah sistem.",
+      message: "Klik 'MULAI BERMAIN' untuk mengaktifkan mesin slot. Setelah ini, kita akan menunggu sistem menyiapkan ribuan algoritma jebakan untuk Anda.",
       targetId: 'start-game-btn',
-      action: () => setTutorialStep(7)
+      action: () => {
+        // The user manually clicks or it happens via submit
+        // We wait for the game to start and the UI to settle
+        setTimeout(() => setTutorialStep(7), 2000); 
+      }
     },
-    // PHASE 3: GAMEPLAY (This assumes they already clicked start, usually we'd need more logic but for tutorial flow we can just explain)
+    // PHASE 3: GAMEPLAY
     {
-      title: "Monitor Saldo Real-Time",
-      message: "Di sini Anda dapat melihat saldo Anda yang akan terus berubah. Perhatikan bagaimana saldo cenderung menurun seiring waktu.",
+      title: "Sistem Siap!",
+      message: "Selamat datang di meja judi. Perhatikan sekeliling Anda sebelum mulai memutar keberuntungan.",
       targetId: 'balance-container',
-      action: () => setTutorialStep(8)
+      action: () => setTutorialStep(8),
+      shouldScroll: true
     },
     {
-      title: "Pilih Taruhan (Bet)",
-      message: "Pilihlah besaran taruhan yang Anda inginkan (misal 100K). Besaran bet akan sangat mempengaruhi seberapa cepat modal Anda habis.",
-      targetId: 'bet-selection',
+      title: "Monitor Saldo",
+      message: "Ini adalah saldo Anda. Perhatikan bagaimana ia akan 'menari' naik turun, namun secara matematis akan terus tergerus.",
+      targetId: 'balance-container',
       action: () => setTutorialStep(9)
     },
     {
-      title: "Mesin Slot Algoritma",
-      message: "Ini adalah visualisasi mesin slot. Ingat, gambar yang muncul sudah ditentukan sedetik sebelum mesin berhenti berputar.",
-      targetId: 'slot-machine-container',
+      title: "Pilih Taruhan (Bet)",
+      message: "Pilihlah besaran taruhan yang Anda inginkan (misal 100K). Besaran bet yang tinggi akan mempercepat fase kebangkrutan.",
+      targetId: 'bet-selection',
       action: () => setTutorialStep(10)
     },
     {
-      title: "Putar Mesin (Spin)",
-      message: "Klik tombol SPIN untuk memulai keberuntungan semu Anda. Dalam beberapa putaran awal, kami akan memberi Anda 'Hook' (kemenangan awal).",
-      targetId: 'spin-btn',
+      title: "Mesin Slot",
+      message: "Visual ini hanyalah kosmetik. Semua hasil putaran sudah ditentukan oleh RNG (Random Number Generator) yang dimanipulasi bandar.",
+      targetId: 'slot-machine-container',
       action: () => setTutorialStep(11)
     },
     {
-      title: "Aturan Main (Paytable)",
-      message: "Lihat multiplier kemenangan di sini. Kemenangan besar biasanya diletakkan di awal untuk memicu dopamin Anda.",
-      targetId: 'paytable-container',
+      title: "Putar Mesin (Spin)",
+      message: "Klik SPIN untuk memulai. Ingat, setiap klik adalah langkah menuju kerugian nyata jika ini terjadi di dunia asli.",
+      targetId: 'spin-btn',
       action: () => setTutorialStep(12)
     },
     {
-      title: "Statistik Kebangkrutan",
-      message: "Pantau total spin dan profit/loss Anda. Statistik ini tidak akan pernah berbohong tentang kerugian Anda.",
+      title: "Statistik & Riwayat",
+      message: "Pantau statistik kekalahan Anda di sini. Riwayat saldo akan menunjukkan grafik penurunan yang tajam.",
       targetId: 'stats-container',
       action: () => setTutorialStep(13)
     },
     {
-      title: "Grafik Penurunan",
-      message: "Lihat riwayat saldo Anda di sini. Grafik yang konsisten menurun adalah bukti nyata bahwa sistem tidak dirancang untuk pemain menang.",
-      targetId: 'balance-history-container',
+      title: "Menjadi Bandar",
+      message: "Jika Anda ingin tahu rahasia di balik kemenangan bandar, silakan buka panel kendali ini.",
+      targetId: 'become-bandar-btn',
       action: () => setTutorialStep(14)
     },
+    // PHASE 4: STRATEGY & EDUCATION
     {
-      title: "Menjadi Sang Penguasa",
-      message: "Terlalu sering kalah? Klik 'BECOME BANDAR' untuk membongkar dan mengontrol mesin ini dari balik layar.",
-      targetId: 'become-bandar-btn',
-      action: () => setTutorialStep(15)
+      title: "Pahami Strategi Mereka",
+      message: "Sekarang mari kita pindah ke halaman Strategi Bandar untuk membongkar trik yang mereka gunakan.",
+      targetId: 'nav-strategy',
+      action: () => {
+        setActiveTab('strategy');
+        setTimeout(() => setTutorialStep(15), 1000);
+      }
     },
     {
-      title: "Kontrol Penuh Admin",
-      message: "Sekarang Anda berada di kendali. Dashboard ini memungkinkan Anda mengatur RTP, Near-Miss, hingga Force Jackpot.",
-      targetId: 'bandar-dashboard-container',
+      title: "Kamus Taktik Bandar",
+      message: "Di sini Anda bisa membaca detail tentang Hook Phase, Near Miss, dan teknik manipulasi lainnya.",
+      targetId: 'strategy-header',
       action: () => setTutorialStep(16),
       shouldScroll: true
     },
     {
-      title: "Gunakan Reset Secara Bijak",
-      message: "Jika saldo habis atau ingin mencoba skenario baru, gunakan tombol RESET ini.",
-      targetId: 'reset-btn',
+      title: "Daftar Strategi",
+      message: "Klik pada setiap item untuk memperdalam pemahaman Anda tentang bagaimana Anda dijebak secara matematis.",
+      targetId: 'strategy-list',
+      action: () => {
+        setActiveTab('education');
+        setTimeout(() => setTutorialStep(17), 1000);
+      }
+    },
+    {
+      title: "Edukasi & Dampak Nyata",
+      message: "Terakhir, halaman Edukasi akan memberikan gambaran dampak sosial dan hukum dari perjudian online.",
+      targetId: 'education-header',
+      action: () => setTutorialStep(18),
+      shouldScroll: true
+    },
+    {
+      title: "Artikel Penting",
+      message: "Baca artikel-artikel ini untuk memahami bahwa judi online bukan sekadar permainan, tapi ancaman nyata bagi masa depan.",
+      targetId: 'education-list',
       action: () => {
         setIsTutorialActive(false);
-        localStorage.setItem('hasSeenZeusTutorialV2', 'true');
+        localStorage.setItem('hasSeenZeusTutorialV3', 'true');
+        setActiveTab('home'); // Send back home after completion
       }
     }
   ];
+
+  const handleFinishTutorial = () => {
+    setIsTutorialActive(false);
+    localStorage.setItem('hasSeenZeusTutorialV3', 'true');
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -163,10 +194,7 @@ function App() {
         active={isTutorialActive}
         steps={tutorialSteps}
         currentStepIndex={tutorialStep}
-        onFinish={() => {
-          setIsTutorialActive(false);
-          localStorage.setItem('hasSeenZeusTutorialV2', 'true');
-        }}
+        onFinish={handleFinishTutorial}
       />
     </div>
   );

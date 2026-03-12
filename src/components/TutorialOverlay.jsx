@@ -23,13 +23,24 @@ const TutorialOverlay = ({ steps, active, onFinish, currentStepIndex }) => {
     const updateRect = () => {
       const element = document.getElementById(currentStep.targetId);
       if (element) {
-        // Scroll into view if needed, but not for every step to avoid jumpiness
+        // Check if element is truly visible (not display: none or hidden by parent)
+        const style = window.getComputedStyle(element);
+        if (style.display === 'none' || style.visibility === 'hidden' || element.offsetParent === null) {
+          setTargetRect(null);
+          return;
+        }
+
         if (currentStep.shouldScroll) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         
         const rect = element.getBoundingClientRect();
-        setTargetRect(rect);
+        // If rect has zero width/height, it's effectively invisible
+        if (rect.width === 0 || rect.height === 0) {
+          setTargetRect(null);
+        } else {
+          setTargetRect(rect);
+        }
       } else {
         setTargetRect(null);
       }
@@ -46,6 +57,12 @@ const TutorialOverlay = ({ steps, active, onFinish, currentStepIndex }) => {
   }, [active, currentStepIndex, steps, windowSize]);
 
   if (!active || !currentStep) return null;
+
+  // If a target is required but not found/visible, don't show the tooltip yet
+  // This prevents game-play tutorial bubbles from showing during setup or page transitions
+  if (currentStep.targetId && !targetRect) {
+    return null;
+  }
 
   const isMobile = windowSize.width <= 768;
 
