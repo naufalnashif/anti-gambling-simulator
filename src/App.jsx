@@ -56,6 +56,7 @@ function App() {
       title: 'Mulai Simulasi',
       content: 'Klik tombol ini untuk langsung masuk ke halaman simulasi mesin slot.',
       targetId: 'tutor-start-sim',
+      scroll: true
     },
     // The following steps appear only when entering simulator
     {

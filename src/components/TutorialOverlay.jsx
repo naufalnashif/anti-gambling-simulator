@@ -189,15 +189,15 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <button 
             onClick={handlePrev} 
-            disabled={currentStep === 0 || step.actionType === 'click'}
+            disabled={currentStep === 0}
             style={{ 
                padding: '8px 12px', 
                fontSize: '0.8rem', 
                background: 'rgba(255,255,255,0.05)', 
                border: '1px solid rgba(255,255,255,0.1)',
                borderRadius: '8px',
-               color: (currentStep === 0 || step.actionType === 'click') ? '#444' : '#fff',
-               cursor: (currentStep === 0 || step.actionType === 'click') ? 'default' : 'pointer',
+               color: (currentStep === 0) ? '#444' : '#fff',
+               cursor: (currentStep === 0) ? 'default' : 'pointer',
                display: 'flex',
                alignItems: 'center',
                gap: '4px'
