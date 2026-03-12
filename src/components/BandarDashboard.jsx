@@ -4,6 +4,11 @@ import { Settings, ShieldAlert, Zap, TrendingDown, Target, Skull, RefreshCcw, Sa
 const BandarDashboard = ({ settings, onSettingsChange, activePhase, onPhaseChange, forcedOutcome, onForceNextOutcome }) => {
   const [localSettings, setLocalSettings] = useState(settings);
 
+  // Sync local settings with props when they change externally
+  React.useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
+
   const handleSliderChange = (e) => {
     const { name, value } = e.target;
     const newSettings = { ...localSettings, [name]: parseFloat(value) };

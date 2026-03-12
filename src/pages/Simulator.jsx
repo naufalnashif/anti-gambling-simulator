@@ -38,6 +38,7 @@ function Simulator() {
   const [bandarToast, setBandarToast] = useState({ visible: false, type: '', message: '' });
   const [hasShownNearMiss, setHasShownNearMiss] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [lastWinMultiplier, setLastWinMultiplier] = useState(0);
 
   // Bandar Mode States
   const [isBandarMode, setIsBandarMode] = useState(false);
@@ -147,7 +148,7 @@ function Simulator() {
       const multiplier = PAYTABLE[symbol];
       const payout = betAmount * multiplier;
 
-      return { isWin: true, payout, symbols: [symbol, symbol, symbol] };
+      return { isWin: true, payout, symbols: [symbol, symbol, symbol], multiplier };
     } else {
       // LOSS LOGIC
       const isNearMiss = Math.random() < (isBandarMode ? bandarSettings.nearMissChance : 0.65);
@@ -192,9 +193,11 @@ function Simulator() {
 
       if (outcome.isWin && outcome.payout > 0) {
         setWinStatus('win');
+        setLastWinMultiplier(outcome.multiplier);
         currentBalance += outcome.payout;
       } else {
         setWinStatus('lose');
+        setLastWinMultiplier(0);
       }
 
       setBalance(currentBalance);
@@ -260,6 +263,28 @@ function Simulator() {
       setCurrentFact('');
       setHasShownNearMiss(false);
     }
+  };
+
+  const handlePhaseChange = (phase) => {
+    let newWinChance = bandarSettings.winChance;
+    let newNearMissChance = bandarSettings.nearMissChance;
+
+    if (phase === 'hook') {
+      newWinChance = 0.95;
+      newNearMissChance = 0.05;
+    } else if (phase === 'drain') {
+      newWinChance = 0.15;
+      newNearMissChance = 0.65;
+    } else if (phase === 'crash') {
+      newWinChance = 0.001;
+      newNearMissChance = 0.95;
+    }
+
+    setBandarSettings({
+      winChance: newWinChance,
+      nearMissChance: newNearMissChance,
+      activePhase: phase
+    });
   };
 
   if (gameState === 'setup') {
@@ -436,8 +461,16 @@ function Simulator() {
             </div>
 
             <div style={{ height: '30px', margin: '5px 0' }}>
-              {winStatus === 'win' && <p className="text-win" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>+ WIN!</p>}
-              {winStatus === 'lose' && <p className="text-lose" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>LOSER</p>}
+              {winStatus === 'win' && (
+                <p className="text-win" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  + WIN! {lastWinMultiplier}x
+                </p>
+              )}
+              {winStatus === 'lose' && (
+                <p className="text-lose" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  LOSER
+                </p>
+              )}
             </div>
 
             <SlotMachine reels={reels} isSpinning={isSpinning} />
@@ -522,7 +555,7 @@ function Simulator() {
                 activePhase={bandarSettings.activePhase}
                 forcedOutcome={forcedOutcome}
                 onSettingsChange={(s) => setBandarSettings(prev => ({ ...prev, ...s }))}
-                onPhaseChange={(p) => setBandarSettings(prev => ({ ...prev, activePhase: p }))}
+                onPhaseChange={handlePhaseChange}
                 onForceNextOutcome={setForcedOutcome}
               />
             </div>
