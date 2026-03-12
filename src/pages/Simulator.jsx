@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SlotMachine from '../components/SlotMachine';
 import BalanceChart from '../components/BalanceChart';
 import { FACTS } from '../constants/facts';
@@ -46,6 +46,13 @@ function Simulator() {
     activePhase: 'drain'
   });
   const [forcedOutcome, setForcedOutcome] = useState(null); // 'jackpot', 'win', 'lose', null
+  const bandarRef = useRef(null);
+
+  useEffect(() => {
+    if (isBandarMode && bandarRef.current) {
+      bandarRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [isBandarMode]);
 
   const items = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
 
@@ -292,7 +299,20 @@ function Simulator() {
   return (
     <div className="page-container">
       <div className="header" style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: '0', right: '0', display: 'flex', gap: '10px' }}>
+        <div style={{ 
+          position: 'fixed', 
+          top: '20px', 
+          right: '20px', 
+          display: 'flex', 
+          gap: '10px', 
+          zIndex: 1000,
+          background: 'rgba(10, 10, 15, 0.8)',
+          padding: '10px',
+          borderRadius: '16px',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.05)',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+        }}>
           <button
             onClick={() => setIsBandarMode(!isBandarMode)}
             className="glass-panel"
@@ -457,14 +477,16 @@ function Simulator() {
           </div>
 
           {isBandarMode && (
-            <BandarDashboard 
-              settings={bandarSettings}
-              activePhase={bandarSettings.activePhase}
-              forcedOutcome={forcedOutcome}
-              onSettingsChange={(s) => setBandarSettings(prev => ({ ...prev, ...s }))}
-              onPhaseChange={(p) => setBandarSettings(prev => ({ ...prev, activePhase: p }))}
-              onForceNextOutcome={setForcedOutcome}
-            />
+            <div ref={bandarRef}>
+              <BandarDashboard 
+                settings={bandarSettings}
+                activePhase={bandarSettings.activePhase}
+                forcedOutcome={forcedOutcome}
+                onSettingsChange={(s) => setBandarSettings(prev => ({ ...prev, ...s }))}
+                onPhaseChange={(p) => setBandarSettings(prev => ({ ...prev, activePhase: p }))}
+                onForceNextOutcome={setForcedOutcome}
+              />
+            </div>
           )}
         </div>
 
