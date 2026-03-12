@@ -228,7 +228,7 @@ function Simulator() {
                 className="setup-input"
                 value={initialBalanceInput}
                 onChange={(e) => setInitialBalanceInput(Number(e.target.value))}
-                min={BET_AMOUNT}
+                min={10000}
                 step={100000}
               />
             </div>
@@ -278,7 +278,7 @@ function Simulator() {
               <h2 className="outfit text-secondary">YOUR BALANCE</h2>
               <Info size={16} className="text-secondary" />
               <span className="tooltip-text">
-                Total saldo (uang) Anda saat ini. Setiap 'Spin' akan mengurangi saldo sebesar {formatCurrency(BET_AMOUNT)}.
+                Total saldo (uang) Anda saat ini. Setiap 'Spin' akan mengurangi saldo sebesar {formatCurrency(betAmount)}.
               </span>
             </div>
 
