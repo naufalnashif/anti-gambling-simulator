@@ -7,6 +7,7 @@ import AlgorithmExposed from '../components/AlgorithmExposed';
 import { AlertTriangle, TrendingDown, Info, ShieldAlert, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import BandarControlToast from '../components/BandarControlToast';
 import BandarDashboard from '../components/BandarDashboard';
+import TutorialOverlay from '../components/TutorialOverlay';
 import '../index.css';
 
 const BET_OPTIONS = [10000, 50000, 100000, 500000, 1000000];
@@ -39,6 +40,17 @@ function Simulator() {
   const [hasShownNearMiss, setHasShownNearMiss] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [lastWinMultiplier, setLastWinMultiplier] = useState(0);
+
+  // Tutorial States
+  const [isTutorialActive, setIsTutorialActive] = useState(false);
+  const [currentTutorialStep, setCurrentTutorialStep] = useState(0);
+
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('hasSeenZeusTutorial');
+    if (!hasSeenTutorial) {
+      setIsTutorialActive(true);
+    }
+  }, []);
 
   // Bandar Mode States
   const [isBandarMode, setIsBandarMode] = useState(false);
@@ -287,16 +299,82 @@ function Simulator() {
     });
   };
 
+  const tutorialSteps = [
+    {
+      title: "Selamat Datang di Zeus Casino",
+      message: "Mari belajar bagaimana sistem judi online sebenarnya bekerja. Kami akan membimbing Anda langkah demi langkah.",
+      targetId: null,
+      action: () => setCurrentTutorialStep(1)
+    },
+    {
+      title: "Tentukan Modal Awal",
+      message: "Pilih modal awal Anda. Ingat, ini hanyalah angka digital, tapi di dunia nyata, ini adalah jerih payah Anda.",
+      targetId: "setup-panel",
+      action: () => setCurrentTutorialStep(2)
+    },
+    {
+      title: "Mulai Bermain",
+      message: "Klik MULAI BERMAIN untuk masuk ke dalam simulasi jebakan algoritma.",
+      targetId: "start-game-btn",
+      action: () => {
+        // We can't actually start the game automatically easily if form valid, but we guide them to click it
+        // If they already clicked it, we might want to advance.
+        setCurrentTutorialStep(2); // Stay here until they click
+      }
+    },
+    {
+      title: "Coba Keberuntungan Anda",
+      message: "Tekan tombol SPIN. Di awal permainan, kami biasanya memberikan kemenangan untuk memancing adrenalin Anda (Hook Phase).",
+      targetId: "spin-btn",
+      action: () => setCurrentTutorialStep(4)
+    },
+    {
+      title: "Menu Rahasia Admin",
+      message: "Selalu kalah atau merasa dicurangi? Sekarang giliran Anda menjadi penguasa. Klik BECOME BANDAR untuk membuka panel kontrol.",
+      targetId: "become-bandar-btn",
+      action: () => setCurrentTutorialStep(5)
+    },
+    {
+      title: "Dashboard Manipulasi",
+      message: "Ini adalah tempat di mana semua 'keberuntungan' diatur. Anda bisa melihat bagaimana algoritma bekerja dari sisi admin.",
+      targetId: "bandar-dashboard-container",
+      action: () => setCurrentTutorialStep(6)
+    },
+    {
+      title: "Atur Peluang (RTP)",
+      message: "Geser slider RTP ke bawah untuk memastikan saldo pemain habis lebih cepat, atau naikkan untuk memberi harapan palsu.",
+      targetId: "rtp-slider-container",
+      action: () => setCurrentTutorialStep(7)
+    },
+    {
+      title: "Intervensi Manual",
+      message: "Butuh hasil instan? Paksa putaran berikutnya menjadi 'Jackpot' untuk memancing pemain deposit lebih besar, atau 'Lose' untuk mengakhiri kemenangan mereka.",
+      targetId: "manual-intervention-container",
+      action: () => {
+        setIsTutorialActive(false);
+        localStorage.setItem('hasSeenZeusTutorial', 'true');
+      }
+    }
+  ];
+
+  const handleFinishTutorial = () => {
+    setIsTutorialActive(false);
+    localStorage.setItem('hasSeenZeusTutorial', 'true');
+  };
+
   if (gameState === 'setup') {
     return (
       <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-        <div className="glass-panel setup-panel" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+        <div id="setup-panel" className="glass-panel setup-panel" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
           <div className="header" style={{ marginBottom: '30px' }}>
             <h1><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
             <p style={{ fontSize: '0.95rem', opacity: 0.8 }}>Persiapkan mental Anda. Tentukan modal awal permainan.</p>
           </div>
 
-          <form onSubmit={startGame}>
+          <form onSubmit={(e) => {
+            startGame(e);
+            if (isTutorialActive && currentTutorialStep === 2) setCurrentTutorialStep(3);
+          }}>
             <div style={{ textAlign: 'left', marginBottom: '20px' }}>
               <label style={{ color: '#ccc', fontWeight: 'bold' }}>Modal Awal (Rupiah)</label>
               <input
@@ -308,7 +386,7 @@ function Simulator() {
                 step={100000}
               />
             </div>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }}>
+            <button id="start-game-btn" type="submit" className="btn-primary" style={{ width: '100%' }}>
               MULAI BERMAIN
             </button>
           </form>
@@ -366,7 +444,13 @@ function Simulator() {
           </button>
 
           <button
-            onClick={() => setIsBandarMode(!isBandarMode)}
+            id="become-bandar-btn"
+            onClick={() => {
+              setIsBandarMode(!isBandarMode);
+              if (isTutorialActive && currentTutorialStep === 4) {
+                setTimeout(() => setCurrentTutorialStep(5), 500);
+              }
+            }}
             className="glass-panel"
             style={{
               padding: '10px 18px',
@@ -476,8 +560,15 @@ function Simulator() {
             <SlotMachine reels={reels} isSpinning={isSpinning} />
 
             <button
+              id="spin-btn"
               className="btn-primary"
-              onClick={spin}
+              onClick={() => {
+                spin();
+                if (isTutorialActive && currentTutorialStep === 3) {
+                  // Wait for spin to finish or just advance
+                  setTimeout(() => setCurrentTutorialStep(4), 2000);
+                }
+              }}
               disabled={isSpinning || balance < betAmount || gameOver}
               style={{ width: '100%', maxWidth: '300px', margin: '20px auto 0' }}
             >
@@ -580,6 +671,13 @@ function Simulator() {
         message={bandarToast.message}
         visible={bandarToast.visible}
         onClose={() => setBandarToast(prev => ({ ...prev, visible: false }))}
+      />
+
+      <TutorialOverlay 
+        active={isTutorialActive}
+        steps={tutorialSteps}
+        currentStepIndex={currentTutorialStep}
+        onFinish={handleFinishTutorial}
       />
     </div>
   );

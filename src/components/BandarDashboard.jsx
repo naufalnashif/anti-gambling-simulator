@@ -17,7 +17,14 @@ const BandarDashboard = ({ settings, onSettingsChange, activePhase, onPhaseChang
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '25px', border: '2px solid var(--accent-color)', background: 'rgba(20, 0, 10, 0.8)' }}>
+    <div id="bandar-dashboard-container" className="glass-panel" style={{ 
+      padding: '30px', 
+      border: '2px solid var(--accent-color)',
+      boxShadow: '0 0 30px rgba(255, 60, 100, 0.2)',
+      marginTop: '30px',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', borderBottom: '1px solid rgba(255, 60, 100, 0.2)', paddingBottom: '15px' }}>
         <ShieldAlert className="text-lose" size={28} />
         <div>
@@ -33,38 +40,40 @@ const BandarDashboard = ({ settings, onSettingsChange, activePhase, onPhaseChang
             <Settings size={18} /> GLOBAL PARAMETERS
           </h3>
           
-          <div style={{ marginBottom: '15px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <label style={{ fontSize: '0.9rem', color: '#ccc' }}>Win Probability (RTP Override)</label>
-              <span className="text-win" style={{ fontWeight: 'bold' }}>{(localSettings.winChance * 100).toFixed(0)}%</span>
+          <div style={{ display: 'grid', gap: '25px' }}>
+            <div id="rtp-slider-container">
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 'bold' }}>RTP OVERRIDE (WIN PROBABILITY)</span>
+                <span style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>{(localSettings.winChance * 100).toFixed(0)}%</span>
+              </div>
+              <input 
+                type="range" 
+                name="winChance"
+                min="0" 
+                max="1" 
+                step="0.01" 
+                value={localSettings.winChance}
+                onChange={handleSliderChange}
+                style={{ width: '100%', accentColor: 'var(--win-color)' }}
+              />
             </div>
-            <input 
-              type="range" 
-              name="winChance"
-              min="0" 
-              max="1" 
-              step="0.01" 
-              value={localSettings.winChance}
-              onChange={handleSliderChange}
-              style={{ width: '100%', accentColor: 'var(--win-color)' }}
-            />
-          </div>
 
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <label style={{ fontSize: '0.9rem', color: '#ccc' }}>Near-Miss Chance (Pseudo-Win)</label>
-              <span className="text-accent" style={{ fontWeight: 'bold' }}>{(localSettings.nearMissChance * 100).toFixed(0)}%</span>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <label style={{ fontSize: '0.9rem', color: '#ccc' }}>Near-Miss Chance (Pseudo-Win)</label>
+                <span className="text-accent" style={{ fontWeight: 'bold' }}>{(localSettings.nearMissChance * 100).toFixed(0)}%</span>
+              </div>
+              <input 
+                type="range" 
+                name="nearMissChance"
+                min="0" 
+                max="1" 
+                step="0.01" 
+                value={localSettings.nearMissChance}
+                onChange={handleSliderChange}
+                style={{ width: '100%', accentColor: 'var(--accent-secondary)' }}
+              />
             </div>
-            <input 
-              type="range" 
-              name="nearMissChance"
-              min="0" 
-              max="1" 
-              step="0.01" 
-              value={localSettings.nearMissChance}
-              onChange={handleSliderChange}
-              style={{ width: '100%', accentColor: 'var(--accent-secondary)' }}
-            />
           </div>
         </section>
 
@@ -94,7 +103,7 @@ const BandarDashboard = ({ settings, onSettingsChange, activePhase, onPhaseChang
         </section>
 
         {/* Force Outcome */}
-        <section style={{ background: 'rgba(0,0,0,0.3)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <section id="manual-intervention-container" style={{ background: 'rgba(0,0,0,0.3)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
           <h3 className="outfit" style={{ fontSize: '0.9rem', color: '#888', marginBottom: '12px', textAlign: 'center' }}>MANUAL INTERVENTION (NEXT SPIN ONLY)</h3>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button 
