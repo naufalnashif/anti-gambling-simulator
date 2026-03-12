@@ -68,6 +68,7 @@ const Home = ({ onStart }) => {
 
       <div style={{ textAlign: 'center' }}>
         <button 
+          id="home-start-btn"
           className="btn-primary" 
           onClick={onStart}
           style={{ 

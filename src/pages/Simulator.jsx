@@ -7,7 +7,6 @@ import AlgorithmExposed from '../components/AlgorithmExposed';
 import { AlertTriangle, TrendingDown, Info, ShieldAlert, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import BandarControlToast from '../components/BandarControlToast';
 import BandarDashboard from '../components/BandarDashboard';
-import TutorialOverlay from '../components/TutorialOverlay';
 import '../index.css';
 
 const BET_OPTIONS = [10000, 50000, 100000, 500000, 1000000];
@@ -40,17 +39,6 @@ function Simulator() {
   const [hasShownNearMiss, setHasShownNearMiss] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [lastWinMultiplier, setLastWinMultiplier] = useState(0);
-
-  // Tutorial States
-  const [isTutorialActive, setIsTutorialActive] = useState(false);
-  const [currentTutorialStep, setCurrentTutorialStep] = useState(0);
-
-  useEffect(() => {
-    const hasSeenTutorial = localStorage.getItem('hasSeenZeusTutorial');
-    if (!hasSeenTutorial) {
-      setIsTutorialActive(true);
-    }
-  }, []);
 
   // Bandar Mode States
   const [isBandarMode, setIsBandarMode] = useState(false);
@@ -299,69 +287,6 @@ function Simulator() {
     });
   };
 
-  const tutorialSteps = [
-    {
-      title: "Selamat Datang di Zeus Casino",
-      message: "Mari belajar bagaimana sistem judi online sebenarnya bekerja. Kami akan membimbing Anda langkah demi langkah.",
-      targetId: null,
-      action: () => setCurrentTutorialStep(1)
-    },
-    {
-      title: "Tentukan Modal Awal",
-      message: "Pilih modal awal Anda. Ingat, ini hanyalah angka digital, tapi di dunia nyata, ini adalah jerih payah Anda.",
-      targetId: "setup-panel",
-      action: () => setCurrentTutorialStep(2)
-    },
-    {
-      title: "Mulai Bermain",
-      message: "Klik MULAI BERMAIN untuk masuk ke dalam simulasi jebakan algoritma.",
-      targetId: "start-game-btn",
-      action: () => {
-        // We can't actually start the game automatically easily if form valid, but we guide them to click it
-        // If they already clicked it, we might want to advance.
-        setCurrentTutorialStep(2); // Stay here until they click
-      }
-    },
-    {
-      title: "Coba Keberuntungan Anda",
-      message: "Tekan tombol SPIN. Di awal permainan, kami biasanya memberikan kemenangan untuk memancing adrenalin Anda (Hook Phase).",
-      targetId: "spin-btn",
-      action: () => setCurrentTutorialStep(4)
-    },
-    {
-      title: "Menu Rahasia Admin",
-      message: "Selalu kalah atau merasa dicurangi? Sekarang giliran Anda menjadi penguasa. Klik BECOME BANDAR untuk membuka panel kontrol.",
-      targetId: "become-bandar-btn",
-      action: () => setCurrentTutorialStep(5)
-    },
-    {
-      title: "Dashboard Manipulasi",
-      message: "Ini adalah tempat di mana semua 'keberuntungan' diatur. Anda bisa melihat bagaimana algoritma bekerja dari sisi admin.",
-      targetId: "bandar-dashboard-container",
-      action: () => setCurrentTutorialStep(6)
-    },
-    {
-      title: "Atur Peluang (RTP)",
-      message: "Geser slider RTP ke bawah untuk memastikan saldo pemain habis lebih cepat, atau naikkan untuk memberi harapan palsu.",
-      targetId: "rtp-slider-container",
-      action: () => setCurrentTutorialStep(7)
-    },
-    {
-      title: "Intervensi Manual",
-      message: "Butuh hasil instan? Paksa putaran berikutnya menjadi 'Jackpot' untuk memancing pemain deposit lebih besar, atau 'Lose' untuk mengakhiri kemenangan mereka.",
-      targetId: "manual-intervention-container",
-      action: () => {
-        setIsTutorialActive(false);
-        localStorage.setItem('hasSeenZeusTutorial', 'true');
-      }
-    }
-  ];
-
-  const handleFinishTutorial = () => {
-    setIsTutorialActive(false);
-    localStorage.setItem('hasSeenZeusTutorial', 'true');
-  };
-
   if (gameState === 'setup') {
     return (
       <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -371,10 +296,7 @@ function Simulator() {
             <p style={{ fontSize: '0.95rem', opacity: 0.8 }}>Persiapkan mental Anda. Tentukan modal awal permainan.</p>
           </div>
 
-          <form onSubmit={(e) => {
-            startGame(e);
-            if (isTutorialActive && currentTutorialStep === 2) setCurrentTutorialStep(3);
-          }}>
+          <form onSubmit={startGame}>
             <div style={{ textAlign: 'left', marginBottom: '20px' }}>
               <label style={{ color: '#ccc', fontWeight: 'bold' }}>Modal Awal (Rupiah)</label>
               <input
@@ -445,12 +367,7 @@ function Simulator() {
 
           <button
             id="become-bandar-btn"
-            onClick={() => {
-              setIsBandarMode(!isBandarMode);
-              if (isTutorialActive && currentTutorialStep === 4) {
-                setTimeout(() => setCurrentTutorialStep(5), 500);
-              }
-            }}
+            onClick={() => setIsBandarMode(!isBandarMode)}
             className="glass-panel"
             style={{
               padding: '10px 18px',
@@ -474,6 +391,7 @@ function Simulator() {
           </button>
 
           <button
+            id="reset-btn"
             onClick={handleRestart}
             className="glass-panel"
             style={{
@@ -513,13 +431,13 @@ function Simulator() {
               </span>
             </div>
 
-            <div className={`balance-display ${winStatus === 'win' ? 'text-win pulsate-win' : winStatus === 'lose' ? 'text-lose pulsate-lose' : ''}`}>
+            <div id="balance-container" className={`balance-display ${winStatus === 'win' ? 'text-win pulsate-win' : winStatus === 'lose' ? 'text-lose pulsate-lose' : ''}`}>
               {formatCurrency(balance)}
             </div>
 
             <div style={{ margin: '20px 0' }}>
               <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '10px', fontWeight: 'bold' }}>PILIH TARUHAN (BET)</p>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <div id="bet-selection" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {BET_OPTIONS.map(opt => (
                   <button
                     key={opt}
@@ -557,18 +475,14 @@ function Simulator() {
               )}
             </div>
 
-            <SlotMachine reels={reels} isSpinning={isSpinning} />
+            <div id="slot-machine-container">
+              <SlotMachine reels={reels} isSpinning={isSpinning} />
+            </div>
 
             <button
               id="spin-btn"
               className="btn-primary"
-              onClick={() => {
-                spin();
-                if (isTutorialActive && currentTutorialStep === 3) {
-                  // Wait for spin to finish or just advance
-                  setTimeout(() => setCurrentTutorialStep(4), 2000);
-                }
-              }}
+              onClick={spin}
               disabled={isSpinning || balance < betAmount || gameOver}
               style={{ width: '100%', maxWidth: '300px', margin: '20px auto 0' }}
             >
@@ -577,7 +491,7 @@ function Simulator() {
           </div>
 
           {/* Paytable Section */}
-          <div className="glass-panel" style={{ padding: '20px' }}>
+          <div id="paytable-container" className="glass-panel" style={{ padding: '20px' }}>
             <h3 className="outfit text-secondary" style={{ fontSize: '1rem', marginBottom: '15px', textAlign: 'center' }}>PAYTABLE (KALI TARUHAN)</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
               {Object.entries(PAYTABLE).map(([sym, mult]) => (
@@ -589,7 +503,7 @@ function Simulator() {
             </div>
           </div>
 
-          <div className="glass-panel" style={{ padding: '30px', display: 'flex', gap: '20px', justifyContent: 'space-around', flexWrap: 'wrap' }}>
+          <div id="stats-container" className="glass-panel" style={{ padding: '30px', display: 'flex', gap: '20px', justifyContent: 'space-around', flexWrap: 'wrap' }}>
             <div className="stat-card" style={{ flex: 1, minWidth: '150px' }}>
               <div className="tooltip-container" style={{ marginBottom: '10px' }}>
                 <h3 className="text-secondary">Total Spins</h3>
@@ -619,7 +533,7 @@ function Simulator() {
 
         </div>
 
-        <div className="sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div id="balance-history-container" className="sidebar" style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="glass-panel" style={{ padding: '30px', height: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '30px' }}>
               <TrendingDown className="text-lose" size={28} />
@@ -671,13 +585,6 @@ function Simulator() {
         message={bandarToast.message}
         visible={bandarToast.visible}
         onClose={() => setBandarToast(prev => ({ ...prev, visible: false }))}
-      />
-
-      <TutorialOverlay 
-        active={isTutorialActive}
-        steps={tutorialSteps}
-        currentStepIndex={currentTutorialStep}
-        onFinish={handleFinishTutorial}
       />
     </div>
   );

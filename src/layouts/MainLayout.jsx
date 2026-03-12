@@ -24,7 +24,7 @@ const MainLayout = ({ activeTab, setActiveTab, children }) => {
         <h2 className="outfit" style={{ margin: 0, fontSize: '1.2rem' }}>
           <span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span>
         </h2>
-        <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+        <button id="mobile-burger" className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -42,6 +42,7 @@ const MainLayout = ({ activeTab, setActiveTab, children }) => {
           {navItems.map((item) => (
             <div 
               key={item.id}
+              id={`nav-${item.id}`}
               className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
               onClick={() => handleNavClick(item.id)}
             >
