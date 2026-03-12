@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Gamepad2, BrainCircuit, BookOpen, Menu, X } from 'lucide-react';
+import { Gamepad2, BrainCircuit, BookOpen, Menu, X, Play } from 'lucide-react';
 import '../index.css';
 
 const MainLayout = ({ activeTab, setActiveTab, children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
+    { id: 'home', label: 'Home', icon: <Play size={20} /> },
     { id: 'simulator', label: 'Simulasi Game', icon: <Gamepad2 size={20} /> },
     { id: 'strategy', label: 'Strategi Bandar', icon: <BrainCircuit size={20} /> },
     { id: 'education', label: 'Artikel Edukasi', icon: <BookOpen size={20} /> },

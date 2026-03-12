@@ -103,6 +103,17 @@ function Simulator() {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
   };
 
+  const handleRestart = () => {
+    if (window.confirm('Apakah Anda yakin ingin mengulang simulasi dari awal? Semua riwayat permainan akan dihapus.')) {
+      setGameState('setup');
+      setSpinCount(0);
+      setGameOver(false);
+      setWinStatus(null);
+      setHistory([]);
+      setBalance(0);
+    }
+  };
+
   if (gameState === 'setup') {
     return (
       <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -137,7 +148,25 @@ function Simulator() {
 
   return (
     <div className="page-container">
-      <div className="header">
+      <div className="header" style={{ position: 'relative' }}>
+        <button 
+          onClick={handleRestart}
+          className="glass-panel"
+          style={{ 
+            position: 'absolute', 
+            top: '0', 
+            right: '0', 
+            padding: '10px 20px', 
+            fontSize: '0.9rem', 
+            cursor: 'pointer',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)',
+            transition: 'all 0.2s',
+            background: 'rgba(255,255,255,0.05)'
+          }}
+        >
+          RESET SESSION
+        </button>
         <h1><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
         <p>The Illusion of Winning</p>
       </div>
