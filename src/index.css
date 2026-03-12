@@ -366,12 +366,27 @@ h1, h2, h3, h4, .outfit {
 }
 
 .stat-card {
-  padding: 20px;
+  padding: 20px 15px;
   border-radius: 16px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.05);
   text-align: center;
   transition: transform 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.stat-value {
+  font-size: clamp(1.2rem, 5vw, 2rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-card:hover {
@@ -492,10 +507,14 @@ h1, h2, h3, h4, .outfit {
 
 .balance-display {
   font-family: 'Outfit', sans-serif;
-  font-size: 3.5rem;
+  font-size: clamp(2rem, 8vw, 3.5rem);
   font-weight: 900;
   margin: 10px 0;
   transition: color 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .fact-text {

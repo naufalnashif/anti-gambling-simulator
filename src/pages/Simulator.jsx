@@ -183,7 +183,7 @@ function Simulator() {
                     Berapa kali Anda telah menekan tombol putar. Semakin sering diputar, semakin pasti uang Anda habis ke Admin (Bandar).
                   </span>
                 </div>
-                <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff' }}>{spinCount}</p>
+                <p className="stat-value">{spinCount}</p>
               </div>
 
               <div className="stat-card" style={{ flex: 1, minWidth: '150px' }}>
@@ -194,7 +194,7 @@ function Simulator() {
                     Selisih antara uang Anda sekarang dibandingkan saat pertama kali memulai. Merah artinya Anda MERUGI.
                   </span>
                 </div>
-                <p className={balance >= initialBalanceState ? 'text-win' : 'text-lose'} style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+                <p className={`stat-value ${balance >= initialBalanceState ? 'text-win' : 'text-lose'}`}>
                   {formatCurrency(balance - initialBalanceState)}
                 </p>
               </div>
