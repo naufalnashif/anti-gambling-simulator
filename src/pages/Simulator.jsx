@@ -65,8 +65,10 @@ function Simulator() {
 
   const determineOutcome = (currentSpinCount) => {
     if (currentSpinCount <= 2) {
-      // Hook phase: high win probability
-      const isWin = Math.random() < 0.8;
+      // Hook phase: almost certain win to hook players
+      // Spin 1: 98% chance, Spin 2: 90% chance
+      const winChance = currentSpinCount === 1 ? 0.98 : 0.90;
+      const isWin = Math.random() < winChance;
       if (isWin) {
         const symbol = items[Math.floor(Math.random() * items.length)];
         return { isWin: true, payout: 250000 + Math.floor(Math.random() * 200000), symbols: [symbol, symbol, symbol] };
