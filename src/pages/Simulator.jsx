@@ -6,6 +6,7 @@ import RealityCheck from '../components/RealityCheck';
 import AlgorithmExposed from '../components/AlgorithmExposed';
 import { AlertTriangle, TrendingDown, Info, ShieldAlert } from 'lucide-react';
 import BandarControlToast from '../components/BandarControlToast';
+import BandarDashboard from '../components/BandarDashboard';
 import '../index.css';
 
 const BET_OPTIONS = [10000, 50000, 100000, 500000, 1000000];
@@ -37,6 +38,15 @@ function Simulator() {
   const [bandarToast, setBandarToast] = useState({ visible: false, type: '', message: '' });
   const [hasShownNearMiss, setHasShownNearMiss] = useState(false);
 
+  // Bandar Mode States
+  const [isBandarMode, setIsBandarMode] = useState(false);
+  const [bandarSettings, setBandarSettings] = useState({
+    winChance: 0.15,
+    nearMissChance: 0.65,
+    activePhase: 'drain'
+  });
+  const [forcedOutcome, setForcedOutcome] = useState(null); // 'jackpot', 'win', 'lose', null
+
   const items = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
 
   const startGame = (e) => {
@@ -67,14 +77,40 @@ function Simulator() {
   };
 
   const getPhase = () => {
+    if (isBandarMode) return bandarSettings.activePhase;
     if (balance < betAmount || gameOver) return 'crash';
     if (spinCount <= 2) return 'hook';
     return 'drain';
   };
 
   const determineOutcome = (currentSpinCount) => {
-    const isHookPhase = currentSpinCount <= 2;
-    const winChance = isHookPhase ? (currentSpinCount === 1 ? 0.98 : 0.90) : 0.15;
+    // 1. Check for Forced Outcome (Bandar Intervention)
+    if (isBandarMode && forcedOutcome) {
+      const outcomeType = forcedOutcome;
+      setForcedOutcome(null); // Reset after use
+
+      if (outcomeType === 'jackpot') {
+        return { isWin: true, payout: betAmount * PAYTABLE['7️⃣'], symbols: ['7️⃣', '7️⃣', '7️⃣'] };
+      } else if (outcomeType === 'win') {
+        const symbol = '🍒';
+        return { isWin: true, payout: betAmount * PAYTABLE[symbol], symbols: [symbol, symbol, symbol] };
+      } else if (outcomeType === 'lose') {
+        return { isWin: false, payout: 0, symbols: generateLosingSymbols() };
+      }
+    }
+
+    // 2. Regular Logic (Modified by Bandar Settings if active)
+    let winChance;
+    let nearMissChance;
+
+    if (isBandarMode) {
+      winChance = bandarSettings.winChance;
+      nearMissChance = bandarSettings.nearMissChance;
+    } else {
+      const isHookPhase = currentSpinCount <= 2;
+      winChance = isHookPhase ? (currentSpinCount === 1 ? 0.98 : 0.90) : 0.15;
+      nearMissChance = 0.65;
+    }
 
     const rand = Math.random();
 
@@ -82,41 +118,31 @@ function Simulator() {
       // WIN LOGIC
       const winRand = Math.random();
       let symbol;
-      let multiplier;
+      
+      const phase = getPhase();
+      const isHook = phase === 'hook';
 
-      if (isHookPhase) {
-        if (winRand < 0.75) {
-          symbol = '🍒'; // Low
-        } else if (winRand < 0.90) {
-          symbol = '🍋'; // Mid 1
-        } else if (winRand < 0.97) {
-          symbol = '🔔'; // Mid 2
-        } else if (winRand < 0.99) {
-          symbol = '💎'; // Premium
-        } else {
-          symbol = '7️⃣'; // Jackpot
-        }
+      if (isHook) {
+        if (winRand < 0.75) symbol = '🍒';
+        else if (winRand < 0.90) symbol = '🍋';
+        else if (winRand < 0.97) symbol = '🔔';
+        else if (winRand < 0.99) symbol = '💎';
+        else symbol = '7️⃣';
       } else {
-        if (winRand < 0.90) {
-          symbol = '🍒'; // Low
-        } else if (winRand < 0.98) {
-          symbol = '🍋'; // Mid 1
-        } else if (winRand < 0.995) {
-          symbol = '🔔'; // Mid 2
-        } else if (winRand < 0.999) {
-          symbol = '💎'; // Premium
-        } else {
-          symbol = '7️⃣'; // Jackpot
-        }
+        if (winRand < 0.90) symbol = '🍒';
+        else if (winRand < 0.98) symbol = '🍋';
+        else if (winRand < 0.995) symbol = '🔔';
+        else if (winRand < 0.999) symbol = '💎';
+        else symbol = '7️⃣';
       }
 
-      multiplier = PAYTABLE[symbol];
+      const multiplier = PAYTABLE[symbol];
       const payout = betAmount * multiplier;
 
       return { isWin: true, payout, symbols: [symbol, symbol, symbol] };
     } else {
       // LOSS LOGIC
-      const isNearMiss = !isHookPhase && Math.random() < 0.65;
+      const isNearMiss = Math.random() < (isBandarMode ? bandarSettings.nearMissChance : 0.65);
 
       if (isNearMiss) {
         const symbol1 = items[Math.floor(Math.random() * items.length)];
@@ -266,24 +292,43 @@ function Simulator() {
   return (
     <div className="page-container">
       <div className="header" style={{ position: 'relative' }}>
-        <button
-          onClick={handleRestart}
-          className="glass-panel"
-          style={{
-            position: 'absolute',
-            top: '0',
-            right: '0',
-            padding: '10px 20px',
-            fontSize: '0.9rem',
-            cursor: 'pointer',
-            color: '#fff',
-            border: '1px solid rgba(255,255,255,0.1)',
-            transition: 'all 0.2s',
-            background: 'rgba(255,255,255,0.05)'
-          }}
-        >
-          RESET SESSION
-        </button>
+        <div style={{ position: 'absolute', top: '0', right: '0', display: 'flex', gap: '10px' }}>
+          <button
+            onClick={() => setIsBandarMode(!isBandarMode)}
+            className="glass-panel"
+            style={{
+              padding: '10px 20px',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              color: isBandarMode ? 'var(--accent-color)' : '#fff',
+              border: `1px solid ${isBandarMode ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)'}`,
+              transition: 'all 0.2s',
+              background: isBandarMode ? 'rgba(255, 60, 100, 0.1)' : 'rgba(255,255,255,0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontWeight: 'bold'
+            }}
+          >
+            <ShieldAlert size={16} /> {isBandarMode ? 'MODE: BANDAR' : 'BECOME BANDAR'}
+          </button>
+
+          <button
+            onClick={handleRestart}
+            className="glass-panel"
+            style={{
+              padding: '10px 20px',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.1)',
+              transition: 'all 0.2s',
+              background: 'rgba(255,255,255,0.05)'
+            }}
+          >
+            RESET
+          </button>
+        </div>
         <h1><span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span></h1>
         <p>The Illusion of Winning</p>
       </div>
@@ -410,6 +455,17 @@ function Simulator() {
               </p>
             </div>
           </div>
+
+          {isBandarMode && (
+            <BandarDashboard 
+              settings={bandarSettings}
+              activePhase={bandarSettings.activePhase}
+              forcedOutcome={forcedOutcome}
+              onSettingsChange={(s) => setBandarSettings(prev => ({ ...prev, ...s }))}
+              onPhaseChange={(p) => setBandarSettings(prev => ({ ...prev, activePhase: p }))}
+              onForceNextOutcome={setForcedOutcome}
+            />
+          )}
         </div>
 
         {/* Membungkus simulator-grid */}
