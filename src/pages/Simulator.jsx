@@ -4,7 +4,8 @@ import BalanceChart from '../components/BalanceChart';
 import { FACTS } from '../constants/facts';
 import RealityCheck from '../components/RealityCheck';
 import AlgorithmExposed from '../components/AlgorithmExposed';
-import { AlertTriangle, TrendingDown, Info } from 'lucide-react';
+import { AlertTriangle, TrendingDown, Info, ShieldAlert } from 'lucide-react';
+import BandarControlToast from '../components/BandarControlToast';
 import '../index.css';
 
 const BET_AMOUNT = 100000;
@@ -24,6 +25,7 @@ function Simulator() {
   const [winStatus, setWinStatus] = useState(null);
   const [shownFactIndices, setShownFactIndices] = useState([]);
   const [currentFact, setCurrentFact] = useState('');
+  const [bandarToast, setBandarToast] = useState({ visible: false, type: '', message: '' });
 
   const items = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
 
@@ -37,6 +39,21 @@ function Simulator() {
     setBalance(initialBalanceInput);
     setHistory([{ spin: 0, balance: initialBalanceInput }]);
     setGameState('playing');
+
+    // Scenario: High-Value Target
+    if (initialBalanceInput >= 5000000) {
+      triggerBandarToast('high-value', 'Saldo besar terdeteksi. Mengaktifkan algoritma "Whale Trap" untuk memastikan pemain ini tidak berhenti sampai saldo nol.');
+    } else {
+      triggerBandarToast('hook', 'Pemain baru terdeteksi. Memberikan kemenangan awal yang tinggi untuk memancing dopamin dan ketergantungan.');
+    }
+  };
+
+  const triggerBandarToast = (type, message) => {
+    setBandarToast({ visible: true, type, message });
+    // Automatically hide after 5 seconds
+    setTimeout(() => {
+      setBandarToast(prev => ({ ...prev, visible: false }));
+    }, 5000);
   };
 
   const getPhase = () => {
@@ -66,7 +83,7 @@ function Simulator() {
       // Small profit win: Sync symbols to 3 same
       const symbol = items[Math.floor(Math.random() * items.length)];
       return { isWin: true, payout: 150000, symbols: [symbol, symbol, symbol] };
-    } else if (rand < 0.5) {
+    } else if (rand < 0.65) {
       // Near miss (2 the same): NEVER 3 same
       const symbol1 = items[Math.floor(Math.random() * items.length)];
       let symbol2 = symbol1;
@@ -75,7 +92,7 @@ function Simulator() {
         symbol3 = items[Math.floor(Math.random() * items.length)];
       } while (symbol3 === symbol1);
       
-      return { isWin: false, payout: 0, symbols: [symbol1, symbol2, symbol3] };
+      return { isWin: false, payout: 0, symbols: [symbol1, symbol2, symbol3], isNearMiss: true };
     } else {
       // Total loss: NEVER 3 same
       return { isWin: false, payout: 0, symbols: generateLosingSymbols() };
@@ -117,6 +134,15 @@ function Simulator() {
       setHistory(prev => [...prev, { spin: newSpinCount, balance: currentBalance }]);
       setSpinCount(newSpinCount);
       setIsSpinning(false);
+
+      // Trigger Scenario Notifications
+      if (newSpinCount === 2) {
+        triggerBandarToast('drain', 'Fase edukasi (Hook) selesai. Mengurangi RTP secara drastis untuk mulai menyedot saldo pemain secara perlahan.');
+      } else if (outcome.isNearMiss) {
+        triggerBandarToast('near-miss', 'Memicu "Hampir Menang". Secara statistik, ini membuat pemain merasa kemenangan sudah dekat dan terus bermain.');
+      } else if (currentBalance < BET_AMOUNT * 2 && currentBalance >= BET_AMOUNT) {
+        triggerBandarToast('crash', 'Saldo kritis terdeteksi. Mengunci sistem untuk memastikan pemain tidak bisa melakukan "comeback".');
+      }
 
       if (currentBalance < BET_AMOUNT) {
         setGameOver(true);
@@ -316,6 +342,13 @@ function Simulator() {
           fact={currentFact}
         />
       )}
+
+      <BandarControlToast 
+        type={bandarToast.type}
+        message={bandarToast.message}
+        visible={bandarToast.visible}
+        onClose={() => setBandarToast(prev => ({ ...prev, visible: false }))}
+      />
     </div>
   );
 }

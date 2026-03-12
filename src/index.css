@@ -542,3 +542,82 @@ h1, h2, h3, h4, .outfit {
   padding-left: 15px;
   text-align: left;
 }
+
+/* Bandar Control Toast */
+.bandar-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(10, 10, 15, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid var(--accent-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 255, 0.1);
+  width: 350px;
+  max-width: calc(100vw - 40px);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  backdrop-filter: blur(10px);
+}
+
+.bandar-toast.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.bandar-toast.hide {
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+.bandar-toast-icon {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.bandar-toast-content {
+  flex-grow: 1;
+}
+
+.bandar-toast-content h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.bandar-toast-content p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #888;
+  line-height: 1.4;
+}
+
+.bandar-toast-close {
+  background: none;
+  border: none;
+  color: #444;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.bandar-toast-close:hover {
+  color: #fff;
+}
+
+@keyframes slide-in-toast {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
