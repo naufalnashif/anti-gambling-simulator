@@ -19,7 +19,7 @@ const MainLayout = ({ activeTab, setActiveTab, children }) => {
   return (
     <div className="layout-wrapper">
       {/* Mobile Topbar */}
-      <div className="mobile-topbar" style={{ display: window.innerWidth <= 768 ? 'flex' : 'none' }}>
+      <div className="mobile-topbar">
         <h2 className="outfit" style={{ margin: 0, fontSize: '1.2rem' }}>
           <span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span>
         </h2>
@@ -30,7 +30,7 @@ const MainLayout = ({ activeTab, setActiveTab, children }) => {
 
       {/* Sidebar Navigation */}
       <aside className={`sidebar-nav ${mobileMenuOpen ? 'open' : ''}`}>
-        <div className="sidebar-brand" style={{ display: window.innerWidth > 768 ? 'block' : 'none' }}>
+        <div className="sidebar-brand">
           <h1 className="outfit" style={{ fontSize: '1.8rem', margin: 0 }}>
             <span className="text-gradient">Zeus</span> <span className="text-accent">Casino</span>
           </h1>
