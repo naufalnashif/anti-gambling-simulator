@@ -8,7 +8,15 @@ import { AlertTriangle, TrendingDown, Info, ShieldAlert } from 'lucide-react';
 import BandarControlToast from '../components/BandarControlToast';
 import '../index.css';
 
-const BET_AMOUNT = 100000;
+const BET_OPTIONS = [10000, 50000, 100000, 500000, 1000000];
+
+const PAYTABLE = {
+  '🍒': 2,
+  '🍋': 5,
+  '🔔': 15,
+  '💎': 50,
+  '7️⃣': 150
+};
 
 function Simulator() {
   const [gameState, setGameState] = useState('setup'); // 'setup', 'playing'
@@ -16,6 +24,7 @@ function Simulator() {
   const [initialBalanceState, setInitialBalanceState] = useState(1000000);
   
   const [balance, setBalance] = useState(0);
+  const [betAmount, setBetAmount] = useState(100000);
   const [history, setHistory] = useState([]);
   const [spinCount, setSpinCount] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -32,8 +41,8 @@ function Simulator() {
 
   const startGame = (e) => {
     e.preventDefault();
-    if (initialBalanceInput < BET_AMOUNT) {
-      alert(`Modal awal minimal Rp ${BET_AMOUNT.toLocaleString('id-ID')} untuk bisa bermain.`);
+    if (initialBalanceInput < 10000) {
+      alert(`Modal awal minimal Rp 10.000 untuk bisa bermain.`);
       return;
     }
     setInitialBalanceState(initialBalanceInput);
@@ -58,47 +67,50 @@ function Simulator() {
   };
 
   const getPhase = () => {
-    if (balance < BET_AMOUNT || gameOver) return 'crash';
+    if (balance < betAmount || gameOver) return 'crash';
     if (spinCount <= 2) return 'hook';
     return 'drain';
   };
 
   const determineOutcome = (currentSpinCount) => {
-    if (currentSpinCount <= 2) {
-      // Hook phase: almost certain win to hook players
-      // Spin 1: 98% chance, Spin 2: 90% chance
-      const winChance = currentSpinCount === 1 ? 0.98 : 0.90;
-      const isWin = Math.random() < winChance;
-      if (isWin) {
-        const symbol = items[Math.floor(Math.random() * items.length)];
-        return { isWin: true, payout: 250000 + Math.floor(Math.random() * 200000), symbols: [symbol, symbol, symbol] };
-      }
-      return { isWin: false, payout: 0, symbols: generateLosingSymbols() };
-    }
+    const isHookPhase = currentSpinCount <= 2;
+    const winChance = isHookPhase ? (currentSpinCount === 1 ? 0.98 : 0.90) : 0.15;
     
     const rand = Math.random();
     
-    if (rand < 0.12) {
-      // Break-even win: Sync symbols to 3 same
-      const symbol = items[Math.floor(Math.random() * items.length)];
-      return { isWin: true, payout: 100000, symbols: [symbol, symbol, symbol] };
-    } else if (rand < 0.25) {
-      // Small profit win: Sync symbols to 3 same
-      const symbol = items[Math.floor(Math.random() * items.length)];
-      return { isWin: true, payout: 150000, symbols: [symbol, symbol, symbol] };
-    } else if (rand < 0.65) {
-      // Near miss (2 the same): NEVER 3 same
-      const symbol1 = items[Math.floor(Math.random() * items.length)];
-      let symbol2 = symbol1;
-      let symbol3;
-      do {
-        symbol3 = items[Math.floor(Math.random() * items.length)];
-      } while (symbol3 === symbol1);
+    if (rand < winChance) {
+      // WIN LOGIC
+      const winRand = Math.random();
+      let symbol;
+      let multiplier;
+
+      if (winRand < (isHookPhase ? 0.6 : 0.7)) {
+        symbol = '🍒'; // Low
+      } else if (winRand < (isHookPhase ? 0.9 : 0.95)) {
+        symbol = Math.random() < 0.5 ? '🍋' : '🔔'; // Mid
+      } else {
+        symbol = Math.random() < 0.7 ? '💎' : '7️⃣'; // High/Jackpot
+      }
       
-      return { isWin: false, payout: 0, symbols: [symbol1, symbol2, symbol3], isNearMiss: true };
+      multiplier = PAYTABLE[symbol];
+      const payout = betAmount * multiplier;
+      
+      return { isWin: true, payout, symbols: [symbol, symbol, symbol] };
     } else {
-      // Total loss: NEVER 3 same
-      return { isWin: false, payout: 0, symbols: generateLosingSymbols() };
+      // LOSS LOGIC
+      const isNearMiss = !isHookPhase && Math.random() < 0.65;
+      
+      if (isNearMiss) {
+        const symbol1 = items[Math.floor(Math.random() * items.length)];
+        let symbol3;
+        do {
+          symbol3 = items[Math.floor(Math.random() * items.length)];
+        } while (symbol3 === symbol1);
+        
+        return { isWin: false, payout: 0, symbols: [symbol1, symbol1, symbol3], isNearMiss: true };
+      } else {
+        return { isWin: false, payout: 0, symbols: generateLosingSymbols() };
+      }
     }
   };
 
@@ -115,11 +127,11 @@ function Simulator() {
   };
 
   const spin = () => {
-    if (balance < BET_AMOUNT || isSpinning || gameOver) return;
+    if (balance < betAmount || isSpinning || gameOver) return;
 
     setIsSpinning(true);
     setWinStatus(null);
-    let currentBalance = balance - BET_AMOUNT;
+    let currentBalance = balance - betAmount;
     const newSpinCount = spinCount + 1;
     
     setTimeout(() => {
@@ -139,7 +151,7 @@ function Simulator() {
       setIsSpinning(false);
 
       // Determine if a Reality Check modal will be shown
-      const willShowRealityCheck = currentBalance < BET_AMOUNT || newSpinCount % 3 === 0;
+      const willShowRealityCheck = currentBalance < betAmount || newSpinCount % 3 === 0;
 
       // Trigger Scenario Notifications
       if (!willShowRealityCheck) {
@@ -148,12 +160,13 @@ function Simulator() {
         } else if (outcome.isNearMiss && !hasShownNearMiss) {
           triggerBandarToast('near-miss', 'Memicu "Hampir Menang". Secara statistik, ini membuat pemain merasa kemenangan sudah dekat dan terus bermain.');
           setHasShownNearMiss(true);
-        } else if (currentBalance < BET_AMOUNT * 2 && currentBalance >= BET_AMOUNT) {
+        } else if (currentBalance < betAmount * 2 && currentBalance >= betAmount) {
           triggerBandarToast('crash', 'Saldo kritis terdeteksi. Mengunci sistem untuk memastikan pemain tidak bisa melakukan "comeback".');
         }
       }
 
-      if (currentBalance < BET_AMOUNT) {
+      if (currentBalance < betAmount) {
+
         setGameOver(true);
         setShowRealityCheck(true);
       } else if (newSpinCount % 3 === 0) {
@@ -272,6 +285,34 @@ function Simulator() {
             <div className={`balance-display ${winStatus === 'win' ? 'text-win pulsate-win' : winStatus === 'lose' ? 'text-lose pulsate-lose' : ''}`}>
               {formatCurrency(balance)}
             </div>
+
+            <div style={{ margin: '20px 0' }}>
+              <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '10px', fontWeight: 'bold' }}>PILIH TARUHAN (BET)</p>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {BET_OPTIONS.map(opt => (
+                  <button
+                    key={opt}
+                    onClick={() => setBetAmount(opt)}
+                    disabled={isSpinning || balance < opt}
+                    className={`bet-btn ${betAmount === opt ? 'active' : ''}`}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: betAmount === opt ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)',
+                      color: betAmount === opt ? '#000' : '#fff',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      opacity: balance < opt ? 0.3 : 1
+                    }}
+                  >
+                    {opt >= 1000000 ? `${opt/1000000}JT` : `${opt/1000}K`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div style={{ height: '30px', margin: '5px 0' }}>
               {winStatus === 'win' && <p className="text-win" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>+ WIN!</p>}
               {winStatus === 'lose' && <p className="text-lose" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>LOSER</p>}
@@ -282,11 +323,24 @@ function Simulator() {
             <button 
               className="btn-primary" 
               onClick={spin} 
-              disabled={isSpinning || balance < BET_AMOUNT || gameOver}
+              disabled={isSpinning || balance < betAmount || gameOver}
               style={{ width: '100%', maxWidth: '300px', margin: '20px auto 0' }}
             >
-              {isSpinning ? 'SPINNING...' : `SPIN (${formatCurrency(BET_AMOUNT)})`}
+              {isSpinning ? 'SPINNING...' : `SPIN (${formatCurrency(betAmount)})`}
             </button>
+          </div>
+
+          {/* Paytable Section */}
+          <div className="glass-panel" style={{ padding: '20px' }}>
+            <h3 className="outfit text-secondary" style={{ fontSize: '1rem', marginBottom: '15px', textAlign: 'center' }}>PAYTABLE (KALI TARUHAN)</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+              {Object.entries(PAYTABLE).map(([sym, mult]) => (
+                <div key={sym} style={{ textAlign: 'center', background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontSize: '1.5rem', marginBottom: '5px' }}>{sym}</div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--accent-color)' }}>{mult}x</div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="glass-panel" style={{ padding: '30px', display: 'flex', gap: '20px', justifyContent: 'space-around', flexWrap: 'wrap' }}>
