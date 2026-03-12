@@ -67,12 +67,14 @@ function App() {
       title: 'Konfirmasi Bermain',
       content: 'Jika sudah siap, klik Mulai Bermain untuk masuk ke dalam permainan.',
       targetId: 'tutor-setup-start',
+      actionType: 'click'
     },
     // The final steps appear after game starts
     {
       title: 'Pantau Saldo',
       content: 'Perhatikan saldo Anda. Biasanya akan naik sedikit di awal sebelum akhirnya dikuras habis.',
       targetId: 'tutor-game-balance',
+      delay: 1000
     },
     {
       title: 'Putar Mesin',
@@ -87,7 +89,7 @@ function App() {
 
     // Mobile specific: Open/Close menu based on step
     if (window.innerWidth <= 768) {
-      if (step.targetId.startsWith('tutor-nav')) {
+      if (step.targetId && step.targetId.startsWith('tutor-nav')) {
         setMobileMenuOpen(true);
       } else {
         setMobileMenuOpen(false);
@@ -95,10 +97,12 @@ function App() {
     }
 
     // Auto-navigate to correct page
-    if (step.targetId === 'tutor-start-sim' || step.targetId === 'tutor-nav-home') {
-      setActiveTab('home');
-    } else if (step.targetId.startsWith('tutor-setup') || step.targetId.startsWith('tutor-game')) {
-      setActiveTab('simulator');
+    if (step.targetId) {
+        if (step.targetId === 'tutor-start-sim' || step.targetId === 'tutor-nav-home') {
+            setActiveTab('home');
+        } else if (step.targetId.startsWith('tutor-setup') || step.targetId.startsWith('tutor-game')) {
+            setActiveTab('simulator');
+        }
     }
   };
 
@@ -113,8 +117,7 @@ function App() {
         return <Home onStart={() => setActiveTab('simulator')} />;
       case 'simulator':
         return <Simulator onGameStart={() => {
-            // If in tutorial and started the game, we might want to skip to the game steps
-            // This is handled by current step progression usually
+            // No need to manually advance if we used actionType: 'click' on the button
         }} />;
       case 'strategy':
         return <Strategy />;

@@ -5,6 +5,7 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isDelayed, setIsDelayed] = useState(false);
   const tooltipRef = useRef(null);
 
   const step = steps[currentStep];
@@ -20,11 +21,25 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
   useEffect(() => {
     if (!isVisible) return;
 
+    // Handle step delays
+    if (step.delay) {
+      setIsDelayed(true);
+      const timer = setTimeout(() => {
+        setIsDelayed(false);
+      }, step.delay);
+      return () => clearTimeout(timer);
+    } else {
+      setIsDelayed(false);
+    }
+  }, [currentStep, isVisible, step.delay]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
     const updatePosition = () => {
       const element = document.getElementById(step.targetId);
       if (element) {
         setTargetRect(element.getBoundingClientRect());
-        // Scroll into view if needed
         if (step.scroll) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -34,18 +49,30 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
     };
 
     updatePosition();
-    // Re-check after a small delay in case of layout shifts or animations
     const timer = setTimeout(updatePosition, 100);
     
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition);
     
+    // Add click listener if step requires action to proceed
+    let elementToListen = null;
+    if (step.actionType === 'click') {
+        const element = document.getElementById(step.targetId);
+        if (element) {
+            elementToListen = element;
+            element.addEventListener('click', handleNext);
+        }
+    }
+    
     return () => {
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition);
+      if (elementToListen) {
+          elementToListen.removeEventListener('click', handleNext);
+      }
       clearTimeout(timer);
     };
-  }, [currentStep, step.targetId, isVisible, step.scroll]);
+  }, [currentStep, step.targetId, isVisible, step.scroll, step.actionType]);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -64,47 +91,69 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
     }
   };
 
-  if (!isVisible || !step) return null;
-
-  const spotlightStyle = targetRect ? {
-    top: `${targetRect.top - 8}px`,
-    left: `${targetRect.left - 8}px`,
-    width: `${targetRect.width + 16}px`,
-    height: `${targetRect.height + 16}px`,
-    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.75)',
-    borderRadius: '8px',
-  } : {
-    top: '50%',
-    left: '50%',
-    width: '0',
-    height: '0',
-    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.75)',
-  };
+  if (!isVisible || !step || isDelayed) return null;
 
   const tooltipPosition = () => {
     if (!targetRect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
     
+    const tooltipWidth = 300;
+    const padding = 20;
+    let left = targetRect.left + targetRect.width / 2;
+    let transform = 'translateX(-50%)';
+
+    // Prevent overflow on left/right
+    const minLeft = tooltipWidth / 2 + padding;
+    const maxLeft = window.innerWidth - (tooltipWidth / 2 + padding);
+    
+    if (left < minLeft) {
+      left = padding;
+      transform = 'none';
+    } else if (left > maxLeft) {
+      left = window.innerWidth - tooltipWidth - padding;
+      transform = 'none';
+    }
+
     const spaceBelow = window.innerHeight - targetRect.bottom;
     const spaceAbove = targetRect.top;
     
-    if (spaceBelow > 200) {
-      return { top: `${targetRect.bottom + 20}px`, left: `${targetRect.left + targetRect.width / 2}px`, transform: 'translateX(-50%)' };
-    } else if (spaceAbove > 200) {
-      return { bottom: `${window.innerHeight - targetRect.top + 20}px`, left: `${targetRect.left + targetRect.width / 2}px`, transform: 'translateX(-50%)' };
+    if (spaceBelow > 250) {
+      return { top: `${targetRect.bottom + 20}px`, left: `${left}px`, transform };
+    } else if (spaceAbove > 250) {
+      return { bottom: `${window.innerHeight - targetRect.top + 20}px`, left: `${left}px`, transform };
     } else {
       return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
     }
   };
 
+  // Professional Backdrop with Hole using clip-path
+  // This allows clicks to pass through to the element in the hole
+  const backdropStyle = targetRect ? {
+    clipPath: `polygon(
+      0% 0%, 0% 100%, 
+      ${targetRect.left - 8}px 100%, 
+      ${targetRect.left - 8}px ${targetRect.top - 8}px, 
+      ${targetRect.right + 8}px ${targetRect.top - 8}px, 
+      ${targetRect.right + 8}px ${targetRect.bottom + 8}px, 
+      ${targetRect.left - 8}px ${targetRect.bottom + 8}px, 
+      ${targetRect.left - 8}px 100%, 
+      100% 100%, 100% 0%
+    )`
+  } : {};
+
   return (
-    <div className="tutorial-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10000, pointerEvents: 'none' }}>
-      {/* Spotlight */}
+    <div className="tutorial-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10000 }}>
+      {/* Backdrop */}
       <div style={{
         position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        background: 'rgba(0, 0, 0, 0.75)',
         transition: 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)',
         pointerEvents: 'auto',
-        ...spotlightStyle
-      }} />
+        ...backdropStyle
+      }} onClick={(e) => e.stopPropagation()} />
 
       {/* Tooltip */}
       <div 
@@ -119,9 +168,9 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
           boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
           color: '#fff',
           zIndex: 10001,
-          pointerEvents: 'auto',
           transition: 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)',
           backdropFilter: 'blur(10px)',
+          pointerEvents: 'auto',
           ...tooltipPosition()
         }}
       >
@@ -140,15 +189,15 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <button 
             onClick={handlePrev} 
-            disabled={currentStep === 0}
+            disabled={currentStep === 0 || step.actionType === 'click'}
             style={{ 
                padding: '8px 12px', 
                fontSize: '0.8rem', 
                background: 'rgba(255,255,255,0.05)', 
                border: '1px solid rgba(255,255,255,0.1)',
                borderRadius: '8px',
-               color: currentStep === 0 ? '#444' : '#fff',
-               cursor: currentStep === 0 ? 'default' : 'pointer',
+               color: (currentStep === 0 || step.actionType === 'click') ? '#444' : '#fff',
+               cursor: (currentStep === 0 || step.actionType === 'click') ? 'default' : 'pointer',
                display: 'flex',
                alignItems: 'center',
                gap: '4px'
@@ -157,19 +206,27 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
             <ChevronLeft size={16} /> Back
           </button>
           
-          <button 
-            onClick={handleNext} 
-            className="btn-primary"
-            style={{ 
-               padding: '8px 20px', 
-               fontSize: '0.9rem',
-               display: 'flex',
-               alignItems: 'center',
-               gap: '4px'
-            }}
-          >
-            {currentStep === steps.length - 1 ? 'Finish' : 'Next'} <ChevronRight size={16} />
-          </button>
+          {!step.actionType && (
+            <button 
+                onClick={handleNext} 
+                className="btn-primary"
+                style={{ 
+                padding: '8px 20px', 
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+                }}
+            >
+                {currentStep === steps.length - 1 ? 'Finish' : 'Next'} <ChevronRight size={16} />
+            </button>
+          )}
+
+          {step.actionType === 'click' && (
+              <span style={{ fontSize: '0.85rem', color: '#888', fontStyle: 'italic', display: 'flex', alignItems: 'center' }}>
+                  Silakan Klik Element
+              </span>
+          )}
         </div>
       </div>
     </div>
