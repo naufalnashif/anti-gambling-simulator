@@ -26,6 +26,7 @@ function Simulator() {
   const [shownFactIndices, setShownFactIndices] = useState([]);
   const [currentFact, setCurrentFact] = useState('');
   const [bandarToast, setBandarToast] = useState({ visible: false, type: '', message: '' });
+  const [hasShownNearMiss, setHasShownNearMiss] = useState(false);
 
   const items = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
 
@@ -135,13 +136,19 @@ function Simulator() {
       setSpinCount(newSpinCount);
       setIsSpinning(false);
 
+      // Determine if a Reality Check modal will be shown
+      const willShowRealityCheck = currentBalance < BET_AMOUNT || newSpinCount % 3 === 0;
+
       // Trigger Scenario Notifications
-      if (newSpinCount === 2) {
-        triggerBandarToast('drain', 'Fase edukasi (Hook) selesai. Mengurangi RTP secara drastis untuk mulai menyedot saldo pemain secara perlahan.');
-      } else if (outcome.isNearMiss) {
-        triggerBandarToast('near-miss', 'Memicu "Hampir Menang". Secara statistik, ini membuat pemain merasa kemenangan sudah dekat dan terus bermain.');
-      } else if (currentBalance < BET_AMOUNT * 2 && currentBalance >= BET_AMOUNT) {
-        triggerBandarToast('crash', 'Saldo kritis terdeteksi. Mengunci sistem untuk memastikan pemain tidak bisa melakukan "comeback".');
+      if (!willShowRealityCheck) {
+        if (newSpinCount === 2) {
+          triggerBandarToast('drain', 'Fase edukasi (Hook) selesai. Mengurangi RTP secara drastis untuk mulai menyedot saldo pemain secara perlahan.');
+        } else if (outcome.isNearMiss && !hasShownNearMiss) {
+          triggerBandarToast('near-miss', 'Memicu "Hampir Menang". Secara statistik, ini membuat pemain merasa kemenangan sudah dekat dan terus bermain.');
+          setHasShownNearMiss(true);
+        } else if (currentBalance < BET_AMOUNT * 2 && currentBalance >= BET_AMOUNT) {
+          triggerBandarToast('crash', 'Saldo kritis terdeteksi. Mengunci sistem untuk memastikan pemain tidak bisa melakukan "comeback".');
+        }
       }
 
       if (currentBalance < BET_AMOUNT) {
@@ -185,6 +192,7 @@ function Simulator() {
       setBalance(0);
       setShownFactIndices([]);
       setCurrentFact('');
+      setHasShownNearMiss(false);
     }
   };
 
