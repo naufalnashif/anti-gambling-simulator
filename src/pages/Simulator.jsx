@@ -55,10 +55,12 @@ function Simulator() {
     
     const rand = Math.random();
     
-    if (rand < 0.15) {
-      return { isWin: true, payout: 50000, symbols: ['🍒', '🍒', '🍋'] };
-    } else if (rand < 0.4) {
-      return { isWin: false, payout: 0, symbols: ['7️⃣', '7️⃣', '🔔'] };
+    if (rand < 0.12) {
+      return { isWin: true, payout: 100000, symbols: ['🍒', '🍒', '🍒'] }; // Break-even win
+    } else if (rand < 0.25) {
+      return { isWin: true, payout: 150000, symbols: ['🍋', '🍋', '🍋'] }; // Small profit win
+    } else if (rand < 0.5) {
+      return { isWin: false, payout: 0, symbols: ['7️⃣', '7️⃣', '🔔'] }; // Near miss (2 the same)
     } else {
       return { isWin: false, payout: 0, symbols: [
         items[Math.floor(Math.random() * items.length)],

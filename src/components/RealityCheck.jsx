@@ -3,8 +3,8 @@ import { AlertCircle, XCircle } from 'lucide-react';
 import '../index.css';
 
 export const FACTS = [
-  "judol hanya memberikan kemenangan semu (memberikan dopamin di awal) dimana setelah itu hanya terdapat kekalahan",
-  "hasil bisa berupa near win, dimana ada 2 yang sama, ini ilusi agar terus bermain",
+  "Sadar nggak? Judol itu cuma kasih lu 'kemenangan semu' di awal buat mancing dopamin, biar lu ngerasa hoki padahal setelah itu uang lu bakal dikuras habis.",
+  "Ngerasa 'dikit lagi menang' karena ada 2 gambar yang sama? Itu namanya Near Win. Cuma ilusi bang biar lu penasaran dan terus-terusan mutar mesin.",
   "Saldo lu dikuras pelan-pelan sama bandar. Menang dikit itu cuma pancingan biar lu nggak berhenti pasang.",
   "Jangan ketipu 'pola gacor'. Itu semua settingan admin biar lu ngerasa bisa nebak arah main, padahal ujungnya ludes.",
   "Admin situs bisa ngelihat semua data lu. Mereka tau kapan lu lagi 'panas' dan kapan harus narik saldo lu sampe abis.",
