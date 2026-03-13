@@ -12,100 +12,144 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
   const [tutorialStep, setTutorialStep] = useState(0);
+  const [gamePhaseStarted, setGamePhaseStarted] = useState(false);
 
-  useEffect(() => {
-    // Tutorial will always show on refresh as state is initialized to true
-  }, []);
+  const isMobile = window.innerWidth <= 768;
 
   const tutorialSteps = [
+    // ── HOME PAGE STEPS ──────────────────────────────────────────
     {
-      title: 'Selamat Datang!',
-      content: 'Selamat datang di Zeus Casino. Mari kita jelajahi platform edukasi anti-judi online ini agar Anda memahami risikonya.',
+      title: '👋 Selamat Datang!',
+      content: 'Selamat datang di Zeus Casino — platform edukasi anti-judi online. Tutorial singkat ini akan memandu Anda menjelajahi fitur-fiturnya.',
       targetId: 'tutor-nav-home',
     },
-    // Conditionally added burger step for mobile
-    ...(window.innerWidth <= 768 ? [{
-      title: 'Buka Menu',
-      content: 'Klik burger menu untuk melihat navigasi website kami.',
+    // Mobile: show burger menu step first
+    ...(isMobile ? [{
+      title: '📱 Menu Navigasi',
+      content: 'Di perangkat mobile, klik ikon menu burger ini untuk membuka navigasi antar halaman.',
       targetId: 'tutor-burger',
+      actionType: 'click',
     }] : []),
     {
-      title: 'Menu Navigasi',
-      content: 'Di sini Anda dapat berpindah antara Beranda, Simulasi, Strategi, dan Artikel Edukasi.',
+      title: '🏠 Beranda',
+      content: 'Halaman utama yang memperkenalkan tujuan platform ini: membongkar cara kerja algorithmic gambling.',
       targetId: 'tutor-nav-home',
     },
     {
-      title: 'Simulasi Game',
-      content: 'Fitur utama kami untuk mendemonstrasikan bagaimana uang Anda habis oleh algoritma.',
+      title: '🎰 Simulasi Game',
+      content: 'Fitur inti: simulasi mesin slot yang memperlihatkan bagaimana uang Anda dikuras secara sistematis oleh algoritma bandar.',
       targetId: 'tutor-nav-simulator',
     },
     {
-      title: 'Strategi Bandar',
-      content: 'Pelajari taktik kotor yang digunakan bandar untuk memancing emosi pemain.',
+      title: '🧠 Strategi Bandar',
+      content: 'Halaman ini membongkar taktik psikologis dan matematis yang digunakan bandar untuk memastikan Anda selalu kalah.',
       targetId: 'tutor-nav-strategy',
     },
     {
-      title: 'Artikel Edukasi',
-      content: 'Informasi mendalam tentang dampak buruk dan cara berhenti dari judi online.',
+      title: '📚 Artikel Edukasi',
+      content: 'Kumpulan artikel informatif tentang dampak nyata judi online — dari sisi neurologis, finansial, hukum, hingga sosial.',
       targetId: 'tutor-nav-education',
     },
     {
-      title: 'Mulai Simulasi',
-      content: 'Klik tombol ini untuk langsung masuk ke halaman simulasi mesin slot.',
+      title: '▶️ Mulai Simulasi',
+      content: 'Klik tombol ini untuk langsung memulai simulasi mesin slot. Ingat: semua uang di sini adalah virtual, tidak ada uang nyata!',
       targetId: 'tutor-start-sim',
-      scroll: true
+      scroll: true,
     },
-    // The following steps appear only when entering simulator
+    // ── SIMULATOR SETUP STEPS ──────────────────────────────────────
     {
-      title: 'Persiapkan Modal',
-      content: 'Masukkan jumlah modal awal yang ingin Anda simulasikan (uang virtual).',
+      title: '💰 Tentukan Modal Awal',
+      content: 'Masukkan jumlah modal awal yang ingin Anda simulasikan. Coba gunakan angka yang terasa nyata bagi Anda — misalnya Rp 1.000.000 — agar pengalaman lebih terasa.',
       targetId: 'tutor-setup-input',
     },
     {
-      title: 'Konfirmasi Bermain',
-      content: 'Jika sudah siap, klik Mulai Bermain untuk masuk ke dalam permainan.',
+      title: '🎮 Masuk ke Permainan',
+      content: 'Klik tombol "MULAI BERMAIN" untuk memulai simulasi. Perhatikan notifikasi dari "Sistem Bandar" yang muncul di sudut layar!',
       targetId: 'tutor-setup-start',
-      actionType: 'click'
+      actionType: 'click',
     },
-    // The final steps appear after game starts
+    // ── IN-GAME STEPS (appear after game starts) ──────────────────
     {
-      title: 'Pantau Saldo',
-      content: 'Perhatikan saldo Anda. Biasanya akan naik sedikit di awal sebelum akhirnya dikuras habis.',
+      title: '📊 Saldo Anda',
+      content: 'Ini adalah saldo virtual Anda. Di awal game, sistem bandar sengaja memberikan kemenangan untuk membuat Anda percaya game ini "gacor". Perhatikan bagaimana saldo berfluktuasi.',
       targetId: 'tutor-game-balance',
-      delay: 1000
+      delay: 600,
     },
     {
-      title: 'Putar Mesin',
-      content: 'Klik Spin untuk memulai permainan. Rasakan bagaimana algoritma mulai bekerja.',
+      title: '🎯 Pilih Besaran Taruhan',
+      content: 'Pilih nominal taruhan per spin. Semakin besar taruhan, semakin cepat saldo habis. Bandar nyata sering mendorong pemain untuk "naik taruhan" saat merasa beruntung.',
+      targetId: 'tutor-bet-panel',
+    },
+    {
+      title: '🔄 Putar Mesin Slot',
+      content: 'Klik tombol SPIN untuk bermain. Perhatikan bagaimana 2 spin pertama selalu cenderung menang (Fase Hook) — ini adalah manipulasi algoritma untuk menciptakan ketergantungan.',
       targetId: 'tutor-game-spin',
-    }
+      actionType: 'click',
+    },
+    {
+      title: '📋 Paytable Simbol',
+      content: 'Tabel pembayaran menunjukkan multiplier tiap simbol. Di slot nyata, peluang mendapat simbol tinggi (💎 atau 7️⃣) sangat kecil — dimanipulasi oleh server bandar.',
+      targetId: 'tutor-paytable',
+      scroll: true,
+    },
+    {
+      title: '🔍 Algoritma Terbongkar',
+      content: 'Panel ini menampilkan "server logic" bandar yang biasanya tersembunyi. Klik untuk melihat fase aktif saat ini dan mekanik manipulasi yang sedang berjalan.',
+      targetId: 'tutor-algo-panel',
+      scroll: true,
+    },
+    {
+      title: '🛡️ Mode Bandar (Fitur Unik!)',
+      content: 'Coba klik "BECOME BANDAR" di sudut kanan atas! Anda bisa merasakan perspektif bandar — mengontrol win-rate, memicu fase, dan memaksa hasil spin pemain.',
+      targetId: 'tutor-bandar-btn',
+    },
+    {
+      title: '✅ Tutorial Selesai!',
+      content: 'Anda sudah memahami cara kerja platform ini. Sekarang coba mainkan simulasinya sampai saldo habis — rasakan sendiri bagaimana algoritma menguras uang. Lalu kunjungi halaman Strategi & Edukasi untuk info lebih lengkap.',
+      targetId: 'tutor-nav-home',
+    },
   ];
 
   const handleTutorialStepChange = (index) => {
     setTutorialStep(index);
     const step = tutorialSteps[index];
 
-    // Mobile specific: Open/Close menu based on step
-    if (window.innerWidth <= 768) {
-      if (step.targetId && step.targetId.startsWith('tutor-nav')) {
+    // Mobile: manage menu open/close
+    if (isMobile) {
+      if (step.targetId?.startsWith('tutor-nav') && step.actionType !== 'click') {
         setMobileMenuOpen(true);
-      } else {
+      } else if (step.targetId !== 'tutor-burger') {
         setMobileMenuOpen(false);
       }
     }
 
-    // Auto-navigate to correct page
+    // Auto-navigate to correct page based on step target
     if (step.targetId) {
-        if (step.targetId === 'tutor-start-sim' || step.targetId === 'tutor-nav-home') {
-            setActiveTab('home');
-        } else if (step.targetId.startsWith('tutor-setup') || step.targetId.startsWith('tutor-game')) {
-            setActiveTab('simulator');
-        }
+      if (
+        step.targetId === 'tutor-nav-home' ||
+        step.targetId === 'tutor-nav-strategy' ||
+        step.targetId === 'tutor-nav-simulator' ||
+        step.targetId === 'tutor-nav-education' ||
+        step.targetId === 'tutor-start-sim' ||
+        step.targetId === 'tutor-burger'
+      ) {
+        setActiveTab('home');
+      } else if (
+        step.targetId.startsWith('tutor-setup') ||
+        step.targetId.startsWith('tutor-game') ||
+        step.targetId.startsWith('tutor-bet') ||
+        step.targetId.startsWith('tutor-paytable') ||
+        step.targetId.startsWith('tutor-algo') ||
+        step.targetId.startsWith('tutor-bandar')
+      ) {
+        setActiveTab('simulator');
+      }
     }
   };
 
   const handleTutorialComplete = () => {
     setShowTutorial(false);
+    setMobileMenuOpen(false);
   };
 
   const renderContent = () => {
@@ -113,9 +157,7 @@ function App() {
       case 'home':
         return <Home onStart={() => setActiveTab('simulator')} />;
       case 'simulator':
-        return <Simulator onGameStart={() => {
-            // No need to manually advance if we used actionType: 'click' on the button
-        }} />;
+        return <Simulator onGameStart={() => setGamePhaseStarted(true)} />;
       case 'strategy':
         return <Strategy />;
       case 'education':
@@ -127,8 +169,8 @@ function App() {
 
   return (
     <>
-      <MainLayout 
-        activeTab={activeTab} 
+      <MainLayout
+        activeTab={activeTab}
         setActiveTab={setActiveTab}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
@@ -137,8 +179,8 @@ function App() {
       </MainLayout>
 
       {showTutorial && (
-        <TutorialOverlay 
-          steps={tutorialSteps} 
+        <TutorialOverlay
+          steps={tutorialSteps}
           onComplete={handleTutorialComplete}
           onStepChange={handleTutorialStepChange}
         />

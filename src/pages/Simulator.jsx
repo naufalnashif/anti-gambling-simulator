@@ -368,6 +368,7 @@ function Simulator({ onGameStart }) {
           </button>
 
           <button
+            id="tutor-bandar-btn"
             onClick={() => setIsBandarMode(!isBandarMode)}
             className="glass-panel"
             style={{
@@ -435,7 +436,7 @@ function Simulator({ onGameStart }) {
               {formatCurrency(balance)}
             </div>
 
-            <div style={{ margin: '20px 0' }}>
+            <div id="tutor-bet-panel" style={{ margin: '20px 0' }}>
               <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '10px', fontWeight: 'bold' }}>PILIH TARUHAN (BET)</p>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {BET_OPTIONS.map(opt => (
@@ -489,7 +490,7 @@ function Simulator({ onGameStart }) {
           </div>
 
           {/* Paytable Section */}
-          <div className="glass-panel" style={{ padding: '20px' }}>
+          <div id="tutor-paytable" className="glass-panel" style={{ padding: '20px' }}>
             <h3 className="outfit text-secondary" style={{ fontSize: '1rem', marginBottom: '15px', textAlign: 'center' }}>PAYTABLE (KALI TARUHAN)</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
               {Object.entries(PAYTABLE).map(([sym, mult]) => (
@@ -527,7 +528,7 @@ function Simulator({ onGameStart }) {
             </div>
           </div>
 
-          <AlgorithmExposed spinCount={spinCount} currentPhase={getPhase()} />
+          <div id="tutor-algo-panel"><AlgorithmExposed spinCount={spinCount} currentPhase={getPhase()} /></div>
 
         </div>
 
