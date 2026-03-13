@@ -6,7 +6,7 @@ const Home = ({ onStart }) => {
   return (
     <div className="page-container" style={{ paddingBottom: '30px' }}>
       <div className="header" style={{ marginBottom: '2.5rem', marginTop: '1rem' }}>
-        <h1 style={{ fontSize: 'clamp(2rem, 7vw, 4rem)', lineHeight: '1.2', marginBottom: '15px' }}>
+        <h1 id="tutor-title" style={{ fontSize: 'clamp(2rem, 7vw, 4rem)', lineHeight: '1.2', marginBottom: '15px' }}>
           <span className="text-gradient">ZEUS</span> <span className="text-accent">CASINO</span>
         </h1>
         <p style={{ 
