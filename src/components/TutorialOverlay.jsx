@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 
-const TutorialOverlay = ({ steps, onComplete, onStepChange, onDismiss }) => {
+const TutorialOverlay = ({ steps, onComplete, onStepChange }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -91,15 +91,6 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange, onDismiss }) => {
     }
   };
 
-  const handleClose = () => {
-    setIsVisible(false);
-    if (onDismiss) {
-        onDismiss(step.phase);
-    } else {
-        onComplete();
-    }
-  };
-
   if (!isVisible || !step || isDelayed) return null;
 
   const tooltipPosition = () => {
@@ -138,21 +129,19 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange, onDismiss }) => {
   // This allows clicks to pass through to the element in the hole
   const backdropStyle = targetRect ? {
     clipPath: `polygon(
-      0% 0%, 
-      100% 0%, 
-      100% 100%, 
-      0% 100%, 
-      0% 0%,
+      0% 0%, 0% 100%, 
+      ${targetRect.left - 8}px 100%, 
       ${targetRect.left - 8}px ${targetRect.top - 8}px, 
       ${targetRect.right + 8}px ${targetRect.top - 8}px, 
       ${targetRect.right + 8}px ${targetRect.bottom + 8}px, 
       ${targetRect.left - 8}px ${targetRect.bottom + 8}px, 
-      ${targetRect.left - 8}px ${targetRect.top - 8}px
+      ${targetRect.left - 8}px 100%, 
+      100% 100%, 100% 0%
     )`
   } : {};
 
   return (
-    <div className="tutorial-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10000, pointerEvents: 'none' }}>
+    <div className="tutorial-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10000 }}>
       {/* Backdrop */}
       <div style={{
         position: 'absolute',
@@ -189,7 +178,7 @@ const TutorialOverlay = ({ steps, onComplete, onStepChange, onDismiss }) => {
           <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-color)', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Tutorial ({currentStep + 1}/{steps.length})
           </span>
-          <button onClick={handleClose} style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer' }}>
+          <button onClick={() => { setIsVisible(false); onComplete(); }} style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer' }}>
             <X size={18} />
           </button>
         </div>
